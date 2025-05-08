@@ -60,36 +60,48 @@ async def comandos(ctx):
     except discord.Forbidden:
         await ctx.reply("Não consegui te mandar DM. Tu precisa liberar as mensagens privadas do servidor. ❌")
 
-# .gugu - Calendário mostrando os dias que o Gugu estará online (1 dia sim, 1 dia não)
 @bot.command()
 async def gugu(ctx):
     today = datetime.date.today()
     dias_semana = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"]
     data_base = datetime.date(2025, 5, 8)  # Dia OFF
 
-    # Prepara os próximos 7 dias
     calendario_linhas = []
+
     for i in range(7):
         dia = today + datetime.timedelta(days=i)
         delta = (dia - data_base).days
-        online = delta % 2 == 1  # 1 dia após o offline = online
+        online = delta % 2 == 1
 
         dia_str = dia.strftime("%d/%m")
         semana_str = dias_semana[dia.weekday()]
         status = "🟢 Online" if online else "🔴 Offline"
 
-        # Se for o dia atual, bota em negrito
-        if dia == today:
-            calendario_linhas.append(f"**{semana_str} ({dia_str}) → {status}**")
+        # Horários aleatórios
+        if online:
+            acorda = datetime.time(random.randint(5, 11), random.choice([0, 15, 30, 45]))
+            dorme_hora = random.randint(22, 27)  # 27 representa 3 da manhã do dia seguinte
+            dorme_min = random.choice([0, 15, 30, 45])
+            dorme = datetime.time(dorme_hora % 24, dorme_min)
+            dorme_str = f"{dorme.strftime('%H:%M')} {'(+1)' if dorme_hora >= 24 else ''}"
+
+            horario_str = f"🕒 {acorda.strftime('%H:%M')} até {dorme_str}"
         else:
-            calendario_linhas.append(f"{semana_str} ({dia_str}) → {status}")
+            horario_str = "💤 Indisponível"
+
+        # Destaque pro dia atual
+        linha = f"{semana_str} ({dia_str}) → {status} | {horario_str}"
+        if dia == today:
+            linha = f"**{linha}**"
+
+        calendario_linhas.append(linha)
 
     embed = discord.Embed(
         title="📅 Agenda Semanal do Gugu",
-        description="\n".join(calendario_linhas),
+        description="\n\n".join(calendario_linhas),
         color=discord.Color.green()
     )
-    embed.set_footer(text="Atualizado automaticamente com base na data de hoje.")
+    embed.set_footer(text="Saiba onde encontrar o Gugu! (ele não pode se esconder...)")
 
     await ctx.reply(embed=embed)
 
