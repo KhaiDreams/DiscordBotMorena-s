@@ -94,7 +94,7 @@ async def escolha(ctx: commands.Context, membro: discord.Member = None):
         return
 
     # Envia a mensagem de "loading"
-    loading_msg = await ctx.reply("A Morena (mais mais) está procurando uma mensagem... Aguarde!! ⏳")
+    loading_msg = await ctx.reply("A Morena está procurando uma mensagem... Aguarde!! ⏳")
 
     alvo = membro or ctx.author
     mensagens = []
