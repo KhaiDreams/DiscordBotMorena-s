@@ -29,6 +29,10 @@ async def rony(ctx):
 async def khai(ctx):
     await ctx.reply("Khai é o namorado da Morena, lindo e cheiroso!")
 
+@bot.command()
+async def vini(ctx):
+    await ctx.reply("Vini é um português safado, não gosta de jogar e só quer saber de comer!")
+
 # Comando .comandos - manda a lista no privado
 @bot.command()
 async def comandos(ctx):
@@ -38,6 +42,7 @@ async def comandos(ctx):
             "`.oi` - A morena te dá um salve 😎\n"
             "`.rony` - Fala da novata Rony 🐢\n"
             "`.khai` - Elogia o Khai 😘\n"
+            "`.vini` - Conta um pouco sobre o vini 😘\n"
             "`.comandos` - Manda essa lista aqui no seu PV 📬"
         )
         if ctx.guild:
