@@ -58,28 +58,34 @@ async def comandos(ctx):
     except discord.Forbidden:
         await ctx.reply("Não consegui te mandar DM. Tu precisa liberar as mensagens privadas do servidor. ❌")
 
-# .escolha - agora com embed lindona
+# .escolha - agora com embed lindona e mensagem de loading
 @bot.command()
 async def escolha(ctx: commands.Context, membro: discord.Member = None):
     if not ctx.guild:
         await ctx.reply("Esse comando só funciona em servidor, não em DM.")
         return
 
+    # Envia a mensagem de "loading"
+    loading_msg = await ctx.reply("A Morena (mais mais) está procurando uma mensagem... Aguarde!! ⏳")
+
     alvo = membro or ctx.author
     mensagens = []
 
+    # Limitar canais que serão verificados (exemplo: apenas canais de texto visíveis para o bot)
     for canal in ctx.guild.text_channels:
         if not canal.permissions_for(ctx.guild.me).read_message_history:
             continue
 
         try:
-            async for msg in canal.history(limit=1000):
+            # Limitar a busca para as últimas 1000 mensagens para otimizar
+            async for msg in canal.history(limit=1000):  # Aqui o limite está em 1000
                 if msg.author.id == alvo.id and not msg.content.startswith('.') and msg.content.strip() != '':
                     mensagens.append(msg)
         except (discord.Forbidden, discord.HTTPException):
             continue
 
     if not mensagens:
+        await loading_msg.delete()  # Deleta a mensagem de loading
         await ctx.reply(f"Não achei nenhuma mensagem de {alvo.display_name} 😔")
         return
 
@@ -92,6 +98,9 @@ async def escolha(ctx: commands.Context, membro: discord.Member = None):
     )
     embed.set_author(name=alvo.display_name, icon_url=alvo.display_avatar.url)
     embed.set_footer(text=f"Canal: #{msg_escolhida.channel.name} • {msg_escolhida.created_at.strftime('%d/%m/%Y %H:%M')}")
+
+    # Deleta a mensagem de loading antes de enviar a mensagem final com a embed
+    await loading_msg.delete()
     
     await ctx.reply(embed=embed)
 
