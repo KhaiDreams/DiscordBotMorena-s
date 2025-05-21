@@ -220,7 +220,7 @@ async def gugu(ctx):
 
     await ctx.reply(embed=embed)
 
-# .escolha - agora com embed lindona e mensagem de loading
+# .escolha - agora com embed lindona, mensagem de loading e botão pro contexto
 @bot.command()
 async def escolha(ctx: commands.Context, membro: discord.Member = None):
     if not ctx.guild:
@@ -239,19 +239,21 @@ async def escolha(ctx: commands.Context, membro: discord.Member = None):
             continue
 
         try:
-            # Limitar a busca para as últimas 1000 mensagens para otimizar
-            async for msg in canal.history(limit=1000):  # Aqui o limite está em 1000
+            async for msg in canal.history(limit=1000):
                 if msg.author.id == alvo.id and not msg.content.startswith('.') and msg.content.strip() != '':
                     mensagens.append(msg)
         except (discord.Forbidden, discord.HTTPException):
             continue
 
     if not mensagens:
-        await loading_msg.delete()  # Deleta a mensagem de loading
+        await loading_msg.delete()
         await ctx.reply(f"Não achei nenhuma mensagem de {alvo.display_name} 😔")
         return
 
     msg_escolhida = random.choice(mensagens)
+
+    # Cria o link direto pra mensagem
+    link_mensagem = f"https://discord.com/channels/{ctx.guild.id}/{msg_escolhida.channel.id}/{msg_escolhida.id}"
 
     embed = discord.Embed(
         title=f"Mensagem aleatória de {alvo.display_name}",
@@ -261,9 +263,12 @@ async def escolha(ctx: commands.Context, membro: discord.Member = None):
     embed.set_author(name=alvo.display_name, icon_url=alvo.display_avatar.url)
     embed.set_footer(text=f"Canal: #{msg_escolhida.channel.name} • {msg_escolhida.created_at.strftime('%d/%m/%Y %H:%M')}")
 
+    # Cria o botão com o link
+    view = View()
+    view.add_item(Button(label="Ver no contexto 🔍", style=discord.ButtonStyle.link, url=link_mensagem))
+
     await loading_msg.delete()
-    
-    await ctx.reply(embed=embed)
+    await ctx.reply(embed=embed, view=view)
 
 # .comandos - lista de comandos via DM
 @bot.command()
