@@ -1,9 +1,10 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from dotenv import load_dotenv
 import os
 import random
 import datetime
+import json
 
 # Carrega variáveis do .env
 load_dotenv()
@@ -13,12 +14,116 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='.', intents=intents)
 
-# Evento ao iniciar
+# Caminho para o JSON dos sorteios
+ARQUIVO_SORTEIOS = "sorteios.json"
+
+def carregar_sorteios():
+    if not os.path.exists(ARQUIVO_SORTEIOS):
+        with open(ARQUIVO_SORTEIOS, "w") as f:
+            json.dump([], f)
+    with open(ARQUIVO_SORTEIOS, "r") as f:
+        return json.load(f)
+
+def salvar_sorteios(sorteios):
+    with open(ARQUIVO_SORTEIOS, "w") as f:
+        json.dump(sorteios, f, indent=4)
+
+@tasks.loop(minutes=1)
+async def checar_sorteios():
+    agora = datetime.datetime.now()
+    sorteios = carregar_sorteios()
+    atualizados = []
+
+    for sorteio in sorteios:
+        if sorteio["feito"]:
+            atualizados.append(sorteio)
+            continue
+
+        data_sorteio = datetime.datetime.strptime(sorteio["data"], "%d/%m/%Y %H:%M")
+        if agora >= data_sorteio:
+            if not sorteio["participantes"]:
+                sorteio["feito"] = True
+                atualizados.append(sorteio)
+                continue
+
+            ganhador = random.choice(sorteio["participantes"])
+            canal = bot.get_channel(sorteio["canal_id"])
+            if canal:
+                embed = discord.Embed(
+                    title=f"🎉 Resultado do Sorteio: {sorteio['titulo']}",
+                    description=f"O grande ganhador é: **{ganhador}** 🎊",
+                    color=discord.Color.gold()
+                )
+                embed.set_footer(text=f"Sorteio realizado em {agora.strftime('%d/%m/%Y %H:%M')}")
+                await canal.send(embed=embed)
+            sorteio["feito"] = True
+        atualizados.append(sorteio)
+
+    salvar_sorteios(atualizados)
+
+@bot.command()
+async def sortear(ctx):
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+
+    await ctx.send("📛 Envia o **título** do sorteio:")
+    titulo_msg = await bot.wait_for("message", check=check, timeout=60.0)
+    titulo = titulo_msg.content.strip()
+
+    await ctx.send("✍️ Manda a lista de participantes (1 por linha):")
+    participantes_msg = await bot.wait_for("message", check=check, timeout=120.0)
+    participantes = [p.strip() for p in participantes_msg.content.split("\n") if p.strip()]
+
+    await ctx.send("🕒 Agora manda a data do sorteio no formato `DD/MM/AAAA HH:MM` (ex: `28/05/2025 18:00`):")
+    data_msg = await bot.wait_for("message", check=check, timeout=60.0)
+    try:
+        data = datetime.datetime.strptime(data_msg.content.strip(), "%d/%m/%Y %H:%M")
+    except ValueError:
+        await ctx.send("❌ Formato de data inválido. Tenta de novo usando `DD/MM/AAAA HH:MM`.")
+        return
+
+    sorteios = carregar_sorteios()
+    sorteios.append({
+        "titulo": titulo,
+        "participantes": participantes,
+        "data": data.strftime("%d/%m/%Y %H:%M"),
+        "feito": False,
+        "canal_id": ctx.channel.id
+    })
+    salvar_sorteios(sorteios)
+
+    embed = discord.Embed(
+        title="📢 Sorteio Criado!",
+        description=f"**Título:** {titulo}\n📅 Data: {data.strftime('%d/%m/%Y %H:%M')}\n👥 Participantes: {len(participantes)}",
+        color=discord.Color.green()
+    )
+    embed.set_footer(text="O resultado será postado aqui automaticamente. Boa sorte! 🍀")
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def sorteios(ctx):
+    sorteios = carregar_sorteios()
+    if not sorteios:
+        await ctx.send("❌ Nenhum sorteio foi criado ainda.")
+        return
+
+    embed = discord.Embed(title="📜 Lista de Sorteios", color=discord.Color.purple())
+
+    for s in sorteios:
+        embed.add_field(
+            name=f"{'✅' if s['feito'] else '🕓'} {s['titulo']}",
+            value=f"Data: {s['data']}\nParticipantes: {len(s['participantes'])}",
+            inline=False
+        )
+
+    await ctx.send(embed=embed)
+
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
-    print('Bot is ready!')
+    print('Bot is readyy!')
     print('------')
+    checar_sorteios.start()  # aqui inicia o loop que verifica os sorteios
 
 # .oi - dá um salve com nome
 @bot.command()
@@ -145,6 +250,8 @@ async def comandos(ctx):
             "`.morena` - Sobre a mais mais (brilho✨) 😘\n"
             "`.comandos` - Manda essa lista aqui no seu PV 📬\n"
             "`.escolha [@alguém]` - Escolhe uma mensagem aleatória da pessoa"
+            "`.sortear` - Cria um sorteio 🎉\n"
+            "`.sorteios` - Mostra a lista de sorteios criados 📜\n"
         )
         if ctx.guild:
             await ctx.reply("Te mandei no PV, confere lá! 📬")
