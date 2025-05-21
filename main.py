@@ -220,6 +220,18 @@ async def gugu(ctx):
 
     await ctx.reply(embed=embed)
 
+# Carregar frases do arquivo
+with open("frases_eu.txt", "r", encoding="utf-8") as f:
+    FRASES_ZOEIRA = [linha.strip() for linha in f if linha.strip()]
+
+# Comando .eu
+@bot.command()
+async def eu(ctx, membro: discord.Member = None):
+    alvo = membro or ctx.author  # Se ninguém for mencionado, usa quem chamou
+    frase = random.choice(FRASES_ZOEIRA)
+    frase_final = frase.replace("{alvo}", alvo.mention)
+    await ctx.reply(frase_final)
+
 # .escolha - agora com embed lindona, mensagem de loading e botão pro contexto
 @bot.command()
 async def escolha(ctx: commands.Context, membro: discord.Member = None):
@@ -285,6 +297,7 @@ async def comandos(ctx):
             "`.escolha [@alguém]` - Escolhe uma mensagem aleatória da pessoa\n"
             "`.sortear` - Cria um sorteio 🎉\n"
             "`.sorteios` - Mostra a lista de sorteios criados 📜\n"
+            "`.eu [@alguém]` - Vai falar algo bem carinhoso para você! 🤞\n"
         )
         if ctx.guild:
             await ctx.reply("Te mandei no PV, confere lá! 📬")
