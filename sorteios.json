@@ -1,1 +1,13 @@
-[]
+[
+    {
+        "titulo": "teste",
+        "participantes": [
+            "@Vini",
+            "@Khai",
+            "@tadinha da silva"
+        ],
+        "data": "21/05/2025 17:56",
+        "feito": true,
+        "canal_id": 1331609308269383741
+    }
+]

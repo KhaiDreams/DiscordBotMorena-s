@@ -1,20 +1,18 @@
 import discord
 from discord.ext import commands, tasks
+from discord.ui import Modal, TextInput, View, Button
 from dotenv import load_dotenv
 import os
 import random
 import datetime
 import json
 
-# Carrega variáveis do .env
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
-# Configurações do bot
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='.', intents=intents)
 
-# Caminho para o JSON dos sorteios
 ARQUIVO_SORTEIOS = "sorteios.json"
 
 def carregar_sorteios():
@@ -61,44 +59,61 @@ async def checar_sorteios():
 
     salvar_sorteios(atualizados)
 
+class SorteioModal(Modal, title="🎁 Criar Novo Sorteio"):
+    def __init__(self, canal_id: int):
+        super().__init__(timeout=300)
+        self.canal_id = canal_id
+
+        self.titulo = TextInput(label="Título do sorteio", placeholder="Ex: Sorteio de gift card", max_length=100)
+        self.participantes = TextInput(label="Participantes (1 por linha)", style=discord.TextStyle.paragraph, placeholder="Ex:\nMaria\nJoão\nCarlos")
+        self.data = TextInput(label="Data (DD/MM/AAAA HH:MM)", placeholder="Ex: 28/05/2025 18:00")
+
+        self.add_item(self.titulo)
+        self.add_item(self.participantes)
+        self.add_item(self.data)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
+            data_formatada = datetime.datetime.strptime(self.data.value.strip(), "%d/%m/%Y %H:%M")
+        except ValueError:
+            await interaction.response.send_message("❌ Data inválida! Use o formato DD/MM/AAAA HH:MM", ephemeral=True)
+            return
+
+        lista_participantes = [p.strip() for p in self.participantes.value.strip().split("\n") if p.strip()]
+        if not lista_participantes:
+            await interaction.response.send_message("❌ Adicione pelo menos um participante.", ephemeral=True)
+            return
+
+        sorteios = carregar_sorteios()
+        sorteios.append({
+            "titulo": self.titulo.value.strip(),
+            "participantes": lista_participantes,
+            "data": data_formatada.strftime("%d/%m/%Y %H:%M"),
+            "feito": False,
+            "canal_id": self.canal_id
+        })
+        salvar_sorteios(sorteios)
+
+        embed = discord.Embed(
+            title="📢 Sorteio Criado!",
+            description=f"**Título:** {self.titulo.value.strip()}\n📅 Data: {data_formatada.strftime('%d/%m/%Y %H:%M')}\n👥 Participantes: {len(lista_participantes)}",
+            color=discord.Color.green()
+        )
+        embed.set_footer(text="O resultado será postado aqui automaticamente. Boa sorte! 🍀")
+        await interaction.response.send_message(embed=embed)
+
 @bot.command()
 async def sortear(ctx):
-    def check(m):
-        return m.author == ctx.author and m.channel == ctx.channel
+    view = View()
 
-    await ctx.send("📛 Envia o **título** do sorteio:")
-    titulo_msg = await bot.wait_for("message", check=check, timeout=60.0)
-    titulo = titulo_msg.content.strip()
+    async def abrir_modal_callback(interaction: discord.Interaction):
+        await interaction.response.send_modal(SorteioModal(ctx.channel.id))
 
-    await ctx.send("✍️ Manda a lista de participantes (1 por linha):")
-    participantes_msg = await bot.wait_for("message", check=check, timeout=120.0)
-    participantes = [p.strip() for p in participantes_msg.content.split("\n") if p.strip()]
+    botao = Button(label="Criar Sorteio 🎁", style=discord.ButtonStyle.success)
+    botao.callback = abrir_modal_callback
+    view.add_item(botao)
 
-    await ctx.send("🕒 Agora manda a data do sorteio no formato `DD/MM/AAAA HH:MM` (ex: `28/05/2025 18:00`):")
-    data_msg = await bot.wait_for("message", check=check, timeout=60.0)
-    try:
-        data = datetime.datetime.strptime(data_msg.content.strip(), "%d/%m/%Y %H:%M")
-    except ValueError:
-        await ctx.send("❌ Formato de data inválido. Tenta de novo usando `DD/MM/AAAA HH:MM`.")
-        return
-
-    sorteios = carregar_sorteios()
-    sorteios.append({
-        "titulo": titulo,
-        "participantes": participantes,
-        "data": data.strftime("%d/%m/%Y %H:%M"),
-        "feito": False,
-        "canal_id": ctx.channel.id
-    })
-    salvar_sorteios(sorteios)
-
-    embed = discord.Embed(
-        title="📢 Sorteio Criado!",
-        description=f"**Título:** {titulo}\n📅 Data: {data.strftime('%d/%m/%Y %H:%M')}\n👥 Participantes: {len(participantes)}",
-        color=discord.Color.green()
-    )
-    embed.set_footer(text="O resultado será postado aqui automaticamente. Boa sorte! 🍀")
-    await ctx.send(embed=embed)
+    await ctx.send("Clique no botão abaixo para abrir o painel de criação de sorteio:", view=view)
 
 @bot.command()
 async def sorteios(ctx):
@@ -117,6 +132,7 @@ async def sorteios(ctx):
         )
 
     await ctx.send(embed=embed)
+
 
 @bot.event
 async def on_ready():
