@@ -26,6 +26,9 @@ def salvar_sorteios(sorteios):
     with open(ARQUIVO_SORTEIOS, "w") as f:
         json.dump(sorteios, f, indent=4)
 
+# Variável global para guardar a mensagem com o botão
+msg_com_botao = None
+
 @tasks.loop(minutes=1)
 async def checar_sorteios():
     agora = datetime.datetime.now()
@@ -53,7 +56,7 @@ async def checar_sorteios():
                     color=discord.Color.gold()
                 )
                 embed.set_footer(text=f"Sorteio realizado em {agora.strftime('%d/%m/%Y %H:%M')}")
-                await canal.send(embed=embed)
+                await canal.send("@everyone", embed=embed)
             sorteio["feito"] = True
         atualizados.append(sorteio)
 
@@ -100,10 +103,20 @@ class SorteioModal(Modal, title="🎁 Criar Novo Sorteio"):
             color=discord.Color.green()
         )
         embed.set_footer(text="O resultado será postado aqui automaticamente. Boa sorte! 🍀")
+
+        global msg_com_botao
+        if msg_com_botao:
+            try:
+                await msg_com_botao.delete()
+            except:
+                pass
+            msg_com_botao = None
+
         await interaction.response.send_message(embed=embed)
 
 @bot.command()
 async def sortear(ctx):
+    global msg_com_botao
     view = View()
 
     async def abrir_modal_callback(interaction: discord.Interaction):
@@ -113,7 +126,7 @@ async def sortear(ctx):
     botao.callback = abrir_modal_callback
     view.add_item(botao)
 
-    await ctx.send("Clique no botão abaixo para abrir o painel de criação de sorteio:", view=view)
+    msg_com_botao = await ctx.send("Clique no botão abaixo para abrir o painel de criação de sorteio:", view=view)
 
 @bot.command()
 async def sorteios(ctx):
@@ -248,7 +261,6 @@ async def escolha(ctx: commands.Context, membro: discord.Member = None):
     embed.set_author(name=alvo.display_name, icon_url=alvo.display_avatar.url)
     embed.set_footer(text=f"Canal: #{msg_escolhida.channel.name} • {msg_escolhida.created_at.strftime('%d/%m/%Y %H:%M')}")
 
-    # Deleta a mensagem de loading antes de enviar a mensagem final com a embed
     await loading_msg.delete()
     
     await ctx.reply(embed=embed)
