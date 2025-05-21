@@ -150,7 +150,7 @@ async def sorteios(ctx):
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
-    print('Bot is readyy!')
+    print('Bot is ready!')
     print('------')
     checar_sorteios.start()  # aqui inicia o loop que verifica os sorteios
 
@@ -277,7 +277,7 @@ async def comandos(ctx):
             "`.gugu` - Avisos sobre quando o Gugu ficará Online 📅\n"
             "`.morena` - Sobre a mais mais (brilho✨) 😘\n"
             "`.comandos` - Manda essa lista aqui no seu PV 📬\n"
-            "`.escolha [@alguém]` - Escolhe uma mensagem aleatória da pessoa"
+            "`.escolha [@alguém]` - Escolhe uma mensagem aleatória da pessoa\n"
             "`.sortear` - Cria um sorteio 🎉\n"
             "`.sorteios` - Mostra a lista de sorteios criados 📜\n"
         )
