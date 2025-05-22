@@ -218,22 +218,38 @@ async def records(ctx):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def tentativa(ctx, id: int, valor: float, *, descricao: str = ""):
+async def tentativa(ctx, id: str = None, valor: str = None, *, descricao: str = ""):
+    if id is None or valor is None:
+        await ctx.send("❌ Você deve informar o número do record e a quantidade. Exemplo: `.tentativa 1 50 descrição opcional`")
+        return
+
+    try:
+        id_int = int(id)
+    except ValueError:
+        await ctx.send("❌ O número do record deve ser um número inteiro válido.")
+        return
+
+    try:
+        valor_float = float(valor)
+    except ValueError:
+        await ctx.send("❌ A quantidade deve ser um número válido. Exemplo: 50 ou 3.14")
+        return
+
     records = carregar_records()
-    if id < 1 or id > len(records):
+    if id_int < 1 or id_int > len(records):
         await ctx.send("❌ Record não encontrado.")
         return
 
-    record = records[id - 1]
+    record = records[id_int - 1]
     record["tentativas"].append({
         "user": ctx.author.name,
         "descricao": descricao.strip(),
-        "valor": valor,
+        "valor": valor_float,
         "data": datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
     })
     salvar_records(records)
 
-    await ctx.send(f"✅ Tentativa adicionada ao record **{record['titulo']}** com valor {valor}!")
+    await ctx.send(f"✅ Tentativa adicionada ao record **{record['titulo']}** com valor {valor_float}!")
 
 
 @bot.command()
