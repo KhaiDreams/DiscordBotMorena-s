@@ -278,10 +278,10 @@ async def records(ctx):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def tentativa(ctx, id: str = None, valor: str = None, *, descricao: str = ""):
+async def tentativa(ctx, id: str = None, valor: str = None):
     """Submit an attempt for a record"""
     if id is None or valor is None:
-        await ctx.send("❌ Você deve informar o número do record e a quantidade. Exemplo: `.tentativa 1 50 descrição opcional`")
+        await ctx.send("❌ Você deve informar o número do record e a quantidade. Exemplo: `.tentativa 1 50`")
         return
 
     try:
@@ -312,7 +312,6 @@ async def tentativa(ctx, id: str = None, valor: str = None, *, descricao: str = 
 
     nova_tentativa = {
         "user": ctx.author.name,
-        "descricao": descricao.strip(),
         "valor": valor_float,
         "data": datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
     }
