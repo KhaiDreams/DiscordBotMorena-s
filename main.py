@@ -364,7 +364,7 @@ async def ranking(ctx, id: int = None):
 
     for pos, t in enumerate(tentativas_ordenadas, start=1):
         medalha = medalhas.get(pos, f"**{pos}.**")
-        ranking_str += f"{medalha} {t['user']} - `{t['valor']}` pontos em {t['data']}\n"
+        ranking_str += f"{medalha} {t['user']} - `{t['valor']}` em {t['data']}\n"
 
     embed = discord.Embed(
         title=f"🏆 Ranking do Record: {record['titulo']}",
