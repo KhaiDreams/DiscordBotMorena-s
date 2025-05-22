@@ -11,9 +11,14 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix='.', intents=intents, sync_commands=False)
+bot = commands.Bot(command_prefix='.', intents=intents)
 
 ARQUIVO_SORTEIOS = "sorteios.json"
+
+@bot.tree.command(name="sortear", description="Criar um sorteio 🎁")
+async def slash_sortear(interaction: discord.Interaction):
+    ctx = await commands.Context.from_interaction(interaction)
+    await sortear(ctx)
 
 def carregar_sorteios():
     if not os.path.exists(ARQUIVO_SORTEIOS):
@@ -157,6 +162,12 @@ async def on_ready():
     print('Bot is ready!')
     print('------')
     checar_sorteios.start()
+
+    try:
+        synced = await bot.tree.sync()
+        print(f"Sincronizei {len(synced)} comandos de barra com sucesso.")
+    except Exception as e:
+        print(f"Erro ao sincronizar comandos de barra: {e}")
 
 # .oi - dá um salve com nome
 @bot.command()
