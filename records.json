@@ -6,8 +6,13 @@
         "tentativas": [
             {
                 "user": "khaiydreams",
-                "valor": 8.0,
+                "valor": 7.0,
                 "data": "22/05/2025 03:25"
+            },
+            {
+                "user": "lurigami.",
+                "valor": 8.0,
+                "data": "23/05/2025 11:40"
             }
         ]
     }
