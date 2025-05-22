@@ -6,8 +6,6 @@ import os
 import random
 import datetime
 import json
-import yt_dlp
-import asyncio
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -160,86 +158,6 @@ async def on_ready():
     print('------')
     checar_sorteios.start()
 
-# Fila de músicas por servidor
-queues = {}
-
-def get_queue(guild_id):
-    if guild_id not in queues:
-        queues[guild_id] = []
-    return queues[guild_id]
-
-# Função pra tocar música da fila
-async def tocar_proxima(ctx):
-    queue = get_queue(ctx.guild.id)
-    if not queue:
-        await ctx.voice_client.disconnect()
-        return
-
-    url, title = queue.pop(0)
-
-    ffmpeg_opts = {'options': '-vn'}
-
-    with yt_dlp.YoutubeDL({'format': 'bestaudio', 'quiet': True}) as ydl:
-        info = ydl.extract_info(url, download=False)
-        stream_url = info['url']
-
-    vc = ctx.voice_client
-
-    def depois_tocar(err):
-        fut = tocar_proxima(ctx)
-        fut = asyncio.run_coroutine_threadsafe(fut, bot.loop)
-        try:
-            fut.result()
-        except Exception as e:
-            print(f"Erro na fila: {e}")
-
-    vc.play(discord.FFmpegPCMAudio(stream_url, **ffmpeg_opts), after=depois_tocar)
-    await ctx.send(f"🎶 Tocando agora: **{title}**")
-
-@bot.command()
-async def musica(ctx, url: str):
-    if not ctx.author.voice or not ctx.author.voice.channel:
-        await ctx.reply("⚠️ Tu precisa tá num canal de voz primeiro.")
-        return
-
-    canal = ctx.author.voice.channel
-    if ctx.voice_client is None:
-        await canal.connect()
-    elif ctx.voice_client.channel != canal:
-        await ctx.voice_client.move_to(canal)
-
-    # Pega info da música
-    with yt_dlp.YoutubeDL({'format': 'bestaudio', 'quiet': True}) as ydl:
-        info = ydl.extract_info(url, download=False)
-        title = info.get("title", "Música")
-        url = info.get("webpage_url", url)
-
-    queue = get_queue(ctx.guild.id)
-    queue.append((url, title))
-
-    if not ctx.voice_client.is_playing() and not ctx.voice_client.is_paused():
-        await tocar_proxima(ctx)
-    else:
-        await ctx.send(f"➕ Adicionado à fila: **{title}**")
-
-@bot.command()
-async def fila(ctx):
-    queue = get_queue(ctx.guild.id)
-    if not queue:
-        await ctx.send("📭 Fila vazia.")
-    else:
-        lista = "\n".join([f"{i+1}. {title}" for i, (_, title) in enumerate(queue)])
-        await ctx.send(f"🎵 Fila atual:\n{lista}")
-
-@bot.command()
-async def skip(ctx):
-    vc = ctx.voice_client
-    if vc and vc.is_playing():
-        vc.stop()
-        await ctx.send("⏭️ Pulando pra próxima música.")
-    else:
-        await ctx.send("⚠️ Não tem nada tocando agora.")
-
 # .oi - dá um salve com nome
 @bot.command()
 async def oi(ctx: commands.Context):
@@ -384,11 +302,6 @@ async def comandos(ctx):
             "`.sortear` - Cria um sorteio 🎉\n"
             "`.sorteios` - Mostra a lista de sorteios criados 📜\n"
             "`.eu [@alguém]` - Vai falar algo bem carinhoso para você! 🤞\n"
-            "`.musica [link]` - Tocar música 🤞\n"
-            "`.play - Despause \n"
-            "`.stop - Pausa a música que tá tocando. ❌\n`"
-            "`.skip` - Pula a música atual ⏭️\n"
-            "`.fila` - Ver a fila de músicas 🎵\n"
         )
         if ctx.guild:
             await ctx.reply("Te mandei no PV, confere lá! 📬")
