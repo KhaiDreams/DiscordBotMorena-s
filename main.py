@@ -11,7 +11,7 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix='.', intents=intents)
+bot = commands.Bot(command_prefix='.', intents=intents, sync_commands=False)
 
 ARQUIVO_SORTEIOS = "sorteios.json"
 
