@@ -36,7 +36,7 @@ async def checar_sorteios():
     atualizados = []
 
     for sorteio in sorteios:
-        if sorteio["feito"]:
+        if sorteio.get("feito"):
             atualizados.append(sorteio)
             continue
 
@@ -48,6 +48,9 @@ async def checar_sorteios():
                 continue
 
             ganhador = random.choice(sorteio["participantes"])
+            sorteio["feito"] = True
+            sorteio["vencedor"] = ganhador
+
             canal = bot.get_channel(sorteio["canal_id"])
             if canal:
                 embed = discord.Embed(
@@ -57,7 +60,7 @@ async def checar_sorteios():
                 )
                 embed.set_footer(text=f"Sorteio realizado em {agora.strftime('%d/%m/%Y %H:%M')}")
                 await canal.send("@everyone", embed=embed)
-            sorteio["feito"] = True
+
         atualizados.append(sorteio)
 
     salvar_sorteios(atualizados)
@@ -138,21 +141,22 @@ async def sorteios(ctx):
     embed = discord.Embed(title="📜 Lista de Sorteios", color=discord.Color.purple())
 
     for s in sorteios:
+        status = '✅ Realizado' if s.get("feito") else '🕓 Pendente'
+        ganhador = f"\n🏆 Ganhador: **{s['vencedor']}**" if s.get("vencedor") else ""
         embed.add_field(
-            name=f"{'✅' if s['feito'] else '🕓'} {s['titulo']}",
-            value=f"Data: {s['data']}\nParticipantes: {len(s['participantes'])}",
+            name=f"{status} - {s['titulo']}",
+            value=f"📅 Data: {s['data']}\n👥 Participantes: {len(s['participantes'])}{ganhador}",
             inline=False
         )
 
     await ctx.send(embed=embed)
-
 
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
     print('Bot is ready!')
     print('------')
-    checar_sorteios.start()  # aqui inicia o loop que verifica os sorteios
+    checar_sorteios.start()
 
 # .oi - dá um salve com nome
 @bot.command()
@@ -220,7 +224,7 @@ async def gugu(ctx):
 
     await ctx.reply(embed=embed)
 
-# Carregar frases do arquivo
+# Carregar frases do arquivo para o .eu
 with open("frases_eu.txt", "r", encoding="utf-8") as f:
     FRASES_ZOEIRA = [linha.strip() for linha in f if linha.strip()]
 
