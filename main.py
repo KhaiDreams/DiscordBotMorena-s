@@ -386,7 +386,7 @@ async def comandos(ctx):
             "`.eu [@alguém]` - Vai falar algo bem carinhoso para você! 🤞\n"
             "`.musica [link]` - Tocar música 🤞\n"
             "`.play - Despause \n"
-            "`.pause - Pausa a música que tá tocando. ❌\n"
+            "`.stop - Pausa a música que tá tocando. ❌\n`"
             "`.skip` - Pula a música atual ⏭️\n"
             "`.fila` - Ver a fila de músicas 🎵\n"
         )
