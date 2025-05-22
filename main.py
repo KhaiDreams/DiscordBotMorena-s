@@ -329,30 +329,49 @@ async def tentativa(ctx, id: str = None, valor: str = None):
     salvar_records(records)
 
 @bot.command()
-async def ranking(ctx):
-    """Display ranking of all records"""
+async def ranking(ctx, id: int = None):
+    """Display ranking for a specific record by its number"""
+
     records = carregar_records()
     if not records:
         await ctx.send("❌ Nenhum record foi criado ainda.")
         return
 
-    embed = discord.Embed(title="🏆 Ranking dos Records", color=discord.Color.gold())
-    for i, record in enumerate(records, start=1):
-        tentativas = record.get("tentativas", [])
-        if tentativas:
-            melhor_valor = max(t["valor"] for t in tentativas)
-            melhor_tentativa = next(t for t in tentativas if t["valor"] == melhor_valor)
-            embed.add_field(
-                name=f"{i}. {record['titulo']} - Melhor valor: {melhor_valor} por {melhor_tentativa['user']}",
-                value=record["descricao"],
-                inline=False
-            )
-        else:
-            embed.add_field(
-                name=f"{i}. {record['titulo']} - Nenhuma tentativa ainda",
-                value=record["descricao"],
-                inline=False
-            )
+    if id is None:
+        await ctx.send("❌ Você precisa informar o número do record. Exemplo: `.ranking 1`")
+        return
+
+    if id < 1 or id > len(records):
+        await ctx.send("❌ Record não encontrado.")
+        return
+
+    record = records[id - 1]
+    tentativas = record.get("tentativas", [])
+
+    if not tentativas:
+        await ctx.send(f"❌ Nenhuma tentativa registrada para o record **{record['titulo']}**.")
+        return
+
+    # Ordena tentativas pelo valor (desc) e depois pela data (asc)
+    tentativas_ordenadas = sorted(
+        tentativas,
+        key=lambda t: (-t["valor"], datetime.datetime.strptime(t["data"], "%d/%m/%Y %H:%M"))
+    )
+
+    # Construir ranking com medalhas e participantes
+    ranking_str = ""
+    medalhas = {1: "🥇 Ouro", 2: "🥈 Prata", 3: "🥉 Bronze"}
+
+    for pos, t in enumerate(tentativas_ordenadas, start=1):
+        medalha = medalhas.get(pos, f"**{pos}.**")
+        ranking_str += f"{medalha} {t['user']} - `{t['valor']}` pontos em {t['data']}\n"
+
+    embed = discord.Embed(
+        title=f"🏆 Ranking do Record: {record['titulo']}",
+        description=f"📝 {record['descricao']}\n\n{ranking_str}",
+        color=discord.Color.gold()
+    )
+
     await ctx.send(embed=embed)
 
 @bot.command()
