@@ -284,14 +284,12 @@ async def tentativa(ctx, id: str = None, valor: str = None, *, descricao: str = 
         await ctx.send("❌ Você deve informar o número do record e a quantidade. Exemplo: `.tentativa 1 50 descrição opcional`")
         return
 
-    # Validate record ID
     try:
         id_int = int(id)
     except ValueError:
         await ctx.send("❌ O número do record deve ser um número inteiro válido.")
         return
 
-    # Validate value
     try:
         valor_float = float(valor)
     except ValueError:
@@ -303,17 +301,33 @@ async def tentativa(ctx, id: str = None, valor: str = None, *, descricao: str = 
         await ctx.send("❌ Record não encontrado.")
         return
 
-    # Add attempt
     record = records[id_int - 1]
-    record["tentativas"].append({
+
+    # Procura tentativa antiga do usuário
+    tentativa_antiga = None
+    for t in record["tentativas"]:
+        if t["user"] == ctx.author.name:
+            tentativa_antiga = t
+            break
+
+    nova_tentativa = {
         "user": ctx.author.name,
         "descricao": descricao.strip(),
         "valor": valor_float,
         "data": datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
-    })
-    salvar_records(records)
+    }
 
-    await ctx.send(f"✅ Tentativa adicionada ao record **{record['titulo']}** com valor {valor_float}!")
+    if tentativa_antiga:
+        # Substitui tentativa antiga
+        record["tentativas"].remove(tentativa_antiga)
+        record["tentativas"].append(nova_tentativa)
+        await ctx.send(f"✅ Tentativa atualizada para o record **{record['titulo']}** com valor {valor_float}!")
+    else:
+        # Adiciona nova tentativa
+        record["tentativas"].append(nova_tentativa)
+        await ctx.send(f"✅ Tentativa adicionada ao record **{record['titulo']}** com valor {valor_float}!")
+
+    salvar_records(records)
 
 @bot.command()
 async def ranking(ctx):
