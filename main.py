@@ -20,6 +20,23 @@ async def slash_sortear(interaction: discord.Interaction):
     ctx = await commands.Context.from_interaction(interaction)
     await sortear(ctx)
 
+ARQUIVO_RECORDS = "records.json"
+
+def carregar_records():
+    if not os.path.exists(ARQUIVO_RECORDS):
+        with open(ARQUIVO_RECORDS, "w") as f:
+            json.dump([], f)
+    with open(ARQUIVO_RECORDS, "r") as f:
+        return json.load(f)
+
+def salvar_records(records):
+    with open(ARQUIVO_RECORDS, "w") as f:
+        json.dump(records, f, indent=4)
+
+@bot.tree.command(name="record", description="Criar um novo record de desafio 🏁")
+async def criar_record(interaction: discord.Interaction):
+    await interaction.response.send_modal(RecordModal(interaction.user.id))
+
 def carregar_sorteios():
     if not os.path.exists(ARQUIVO_SORTEIOS):
         with open(ARQUIVO_SORTEIOS, "w") as f:
@@ -122,6 +139,34 @@ class SorteioModal(Modal, title="🎁 Criar Novo Sorteio"):
 
         await interaction.response.send_message(embed=embed)
 
+class RecordModal(Modal, title="🏁 Criar Record"):
+    def __init__(self, autor_id: int):
+        super().__init__(timeout=300)
+        self.autor_id = autor_id
+
+        self.titulo = TextInput(label="Título do Record", placeholder="Ex: Maior número de kills em 1 partida", max_length=100)
+        self.descricao = TextInput(label="Quantidade do seu record", style=discord.TextStyle.paragraph, placeholder="Detalhes do record...", max_length=500)
+
+        self.add_item(self.titulo)
+        self.add_item(self.descricao)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        records = carregar_records()
+        records.append({
+            "titulo": self.titulo.value.strip(),
+            "descricao": self.descricao.value.strip(),
+            "autor_id": self.autor_id,
+            "tentativas": [],
+        })
+        salvar_records(records)
+
+        embed = discord.Embed(
+            title="✅ Record criado!",
+            description=f"🏁 **{self.titulo.value.strip()}**\n📝 {self.descricao.value.strip()}",
+            color=discord.Color.green()
+        )
+        await interaction.response.send_message(embed=embed)
+
 @bot.command()
 async def sortear(ctx):
     global msg_com_botao
@@ -155,6 +200,86 @@ async def sorteios(ctx):
         )
 
     await ctx.send(embed=embed)
+
+@bot.command()
+async def records(ctx):
+    records = carregar_records()
+    if not records:
+        await ctx.send("❌ Nenhum record foi criado ainda.")
+        return
+
+    embed = discord.Embed(title="🏁 Lista de Records", color=discord.Color.orange())
+    for i, record in enumerate(records, start=1):
+        embed.add_field(
+            name=f"{i}. {record['titulo']}",
+            value=f"{record['descricao']}\n🎯 Tentativas: {len(record['tentativas'])}",
+            inline=False
+        )
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def tentativa(ctx, id: int, valor: float, *, descricao: str = ""):
+    records = carregar_records()
+    if id < 1 or id > len(records):
+        await ctx.send("❌ Record não encontrado.")
+        return
+
+    record = records[id - 1]
+    record["tentativas"].append({
+        "user": ctx.author.name,
+        "descricao": descricao.strip(),
+        "valor": valor,
+        "data": datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
+    })
+    salvar_records(records)
+
+    await ctx.send(f"✅ Tentativa adicionada ao record **{record['titulo']}** com valor {valor}!")
+
+
+@bot.command()
+async def ranking(ctx):
+    records = carregar_records()
+    if not records:
+        await ctx.send("❌ Nenhum record foi criado ainda.")
+        return
+
+    embed = discord.Embed(title="🏆 Ranking dos Records", color=discord.Color.gold())
+    for i, record in enumerate(records, start=1):
+        tentativas = record.get("tentativas", [])
+        if tentativas:
+            melhor_valor = max(t["valor"] for t in tentativas)
+            melhor_tentativa = next(t for t in tentativas if t["valor"] == melhor_valor)
+            embed.add_field(
+                name=f"{i}. {record['titulo']} - Melhor valor: {melhor_valor} por {melhor_tentativa['user']}",
+                value=record["descricao"],
+                inline=False
+            )
+        else:
+            embed.add_field(
+                name=f"{i}. {record['titulo']} - Nenhuma tentativa ainda",
+                value=record["descricao"],
+                inline=False
+            )
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def deletar_record(ctx, id: int):
+    records = carregar_records()
+    if id < 1 or id > len(records):
+        await ctx.send("❌ Record não encontrado.")
+        return
+
+    record = records[id - 1]
+    if record["autor_id"] != ctx.author.id:
+        await ctx.send("❌ Só o criador desse record pode deletar.")
+        return
+
+    titulo = record["titulo"]
+    del records[id - 1]
+    salvar_records(records)
+
+    await ctx.send(f"🗑️ Record **{titulo}** foi deletado com sucesso.")
 
 @bot.event
 async def on_ready():
@@ -313,6 +438,11 @@ async def comandos(ctx):
             "`.sortear` - Cria um sorteio 🎉\n"
             "`.sorteios` - Mostra a lista de sorteios criados 📜\n"
             "`.eu [@alguém]` - Vai falar algo bem carinhoso para você! 🤞\n"
+            "`/record` - Cria um desafio (record) que a galera pode tentar bater 🏁\n"
+            "`.records` - Mostra todos os records criados 🎯\n"
+            "`.tentativa [número do record] [quantidade]` - Tenta bater um record específico 💥\n"
+            "`.ranking [número do record]` mostra o raking record específico 🐱‍👤\n"
+            "`.deletar_record [número do record]` - Deleta um record (só quem criou pode) 🗑️\n"
         )
         if ctx.guild:
             await ctx.reply("Te mandei no PV, confere lá! 📬")
