@@ -6,6 +6,7 @@ import os
 import random
 import datetime
 import json
+import pytz
 
 # Environment setup
 load_dotenv()
@@ -14,6 +15,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 # Bot configuration
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='.', intents=intents)
+fuso_brasil = pytz.timezone("America/Sao_Paulo")
 
 # File constants
 ARQUIVO_SORTEIOS = "sorteios.json"
@@ -25,6 +27,21 @@ msg_com_botao = None
 # ========================================
 # UTILITY FUNCTIONS
 # ========================================
+
+def obter_agora_brasil():
+    """Get current time in Brazil timezone"""
+    return datetime.datetime.now(fuso_brasil)
+
+def formatar_data_brasil(dt):
+    """Format datetime to Brazilian format"""
+    if dt.tzinfo is None:
+        dt = fuso_brasil.localize(dt)
+    return dt.strftime("%d/%m/%Y %H:%M")
+
+def converter_para_brasil(dt_string):
+    """Convert datetime string to Brazil timezone datetime object"""
+    dt_naive = datetime.datetime.strptime(dt_string, "%d/%m/%Y %H:%M")
+    return fuso_brasil.localize(dt_naive)
 
 def carregar_sorteios():
     """Load raffles from JSON file"""
@@ -81,11 +98,17 @@ class SorteioModal(Modal, title="🎁 Criar Novo Sorteio"):
         self.add_item(self.data)
 
     async def on_submit(self, interaction: discord.Interaction):
-        # Validate date format
+        # Validate date format and convert to Brazil timezone
         try:
-            data_formatada = datetime.datetime.strptime(self.data.value.strip(), "%d/%m/%Y %H:%M")
+            data_formatada = converter_para_brasil(self.data.value.strip())
         except ValueError:
             await interaction.response.send_message("❌ Data inválida! Use o formato DD/MM/AAAA HH:MM", ephemeral=True)
+            return
+
+        # Check if date is in the future
+        agora_brasil = obter_agora_brasil()
+        if data_formatada <= agora_brasil:
+            await interaction.response.send_message("❌ A data do sorteio deve ser no futuro!", ephemeral=True)
             return
 
         # Process participants
@@ -99,7 +122,7 @@ class SorteioModal(Modal, title="🎁 Criar Novo Sorteio"):
         sorteios.append({
             "titulo": self.titulo.value.strip(),
             "participantes": lista_participantes,
-            "data": data_formatada.strftime("%d/%m/%Y %H:%M"),
+            "data": formatar_data_brasil(data_formatada),
             "feito": False,
             "canal_id": self.canal_id
         })
@@ -108,7 +131,7 @@ class SorteioModal(Modal, title="🎁 Criar Novo Sorteio"):
         # Create success embed
         embed = discord.Embed(
             title="📢 Sorteio Criado!",
-            description=f"**Título:** {self.titulo.value.strip()}\n📅 Data: {data_formatada.strftime('%d/%m/%Y %H:%M')}\n👥 Participantes: {len(lista_participantes)}",
+            description=f"**Título:** {self.titulo.value.strip()}\n📅 Data: {formatar_data_brasil(data_formatada)} (horário de Brasília)\n👥 Participantes: {len(lista_participantes)}",
             color=discord.Color.green()
         )
         embed.set_footer(text="O resultado será postado aqui automaticamente. Boa sorte! 🍀")
@@ -168,7 +191,7 @@ class RecordModal(Modal, title="🏁 Criar Record"):
 @tasks.loop(minutes=1)
 async def checar_sorteios():
     """Check and execute pending raffles"""
-    agora = datetime.datetime.now()
+    agora_brasil = obter_agora_brasil()
     sorteios = carregar_sorteios()
     atualizados = []
 
@@ -177,8 +200,8 @@ async def checar_sorteios():
             atualizados.append(sorteio)
             continue
 
-        data_sorteio = datetime.datetime.strptime(sorteio["data"], "%d/%m/%Y %H:%M")
-        if agora >= data_sorteio:
+        data_sorteio = converter_para_brasil(sorteio["data"])
+        if agora_brasil >= data_sorteio:
             if not sorteio["participantes"]:
                 sorteio["feito"] = True
                 atualizados.append(sorteio)
@@ -196,7 +219,7 @@ async def checar_sorteios():
                     description=f"O grande ganhador é: **{ganhador}** 🎊",
                     color=discord.Color.gold()
                 )
-                embed.set_footer(text=f"Sorteio realizado em {agora.strftime('%d/%m/%Y %H:%M')}")
+                embed.set_footer(text=f"Sorteio realizado em {formatar_data_brasil(agora_brasil)} (horário de Brasília)")
                 await canal.send("@everyone", embed=embed)
 
         atualizados.append(sorteio)
@@ -250,7 +273,7 @@ async def sorteios(ctx):
         ganhador = f"\n🏆 Ganhador: **{s['vencedor']}**" if s.get("vencedor") else ""
         embed.add_field(
             name=f"{status} - {s['titulo']}",
-            value=f"📅 Data: {s['data']}\n👥 Participantes: {len(s['participantes'])}{ganhador}",
+            value=f"📅 Data: {s['data']} (horário de Brasília)\n👥 Participantes: {len(s['participantes'])}{ganhador}",
             inline=False
         )
 
@@ -310,10 +333,11 @@ async def tentativa(ctx, id: str = None, valor: str = None):
             tentativa_antiga = t
             break
 
+    agora_brasil = obter_agora_brasil()
     nova_tentativa = {
         "user": ctx.author.name,
         "valor": valor_float,
-        "data": datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
+        "data": formatar_data_brasil(agora_brasil)
     }
 
     if tentativa_antiga:
@@ -355,7 +379,7 @@ async def ranking(ctx, id: int = None):
     # Ordena tentativas pelo valor (desc) e depois pela data (asc)
     tentativas_ordenadas = sorted(
         tentativas,
-        key=lambda t: (-t["valor"], datetime.datetime.strptime(t["data"], "%d/%m/%Y %H:%M"))
+        key=lambda t: (-t["valor"], converter_para_brasil(t["data"]))
     )
 
     # Construir ranking com medalhas e participantes
@@ -371,6 +395,7 @@ async def ranking(ctx, id: int = None):
         description=f"📝 {record['descricao']}\n\n{ranking_str}",
         color=discord.Color.gold()
     )
+    embed.set_footer(text="Horários em fuso de Brasília")
 
     await ctx.send(embed=embed)
 
@@ -421,14 +446,14 @@ async def morena(ctx):
 @bot.command()
 async def gugu(ctx):
     """Display Gugu's weekly schedule"""
-    today = datetime.date.today()
+    hoje_brasil = obter_agora_brasil().date()
     dias_semana = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"]
     data_base = datetime.date(2025, 5, 8)  # Base date (OFF day)
 
     calendario_linhas = []
 
     for i in range(7):
-        dia = today + datetime.timedelta(days=i)
+        dia = hoje_brasil + datetime.timedelta(days=i)
         delta = (dia - data_base).days
         online = delta % 2 == 1
 
@@ -449,7 +474,7 @@ async def gugu(ctx):
 
         # Highlight current day
         linha = f"{semana_str} ({dia_str}) → {status} | {horario_str}"
-        if dia == today:
+        if dia == hoje_brasil:
             linha = f"**{linha}**"
 
         calendario_linhas.append(linha)
@@ -459,7 +484,7 @@ async def gugu(ctx):
         description="\n\n".join(calendario_linhas),
         color=discord.Color.green()
     )
-    embed.set_footer(text="Saiba onde encontrar o Gugu! (ele não pode se esconder...)")
+    embed.set_footer(text="Saiba onde encontrar o Gugu! (horário de Brasília)")
 
     await ctx.reply(embed=embed)
 
@@ -507,13 +532,16 @@ async def escolha(ctx: commands.Context, membro: discord.Member = None):
     msg_escolhida = random.choice(mensagens)
     link_mensagem = f"https://discord.com/channels/{ctx.guild.id}/{msg_escolhida.channel.id}/{msg_escolhida.id}"
 
+    # Convert message time to Brazil timezone
+    data_msg_brasil = msg_escolhida.created_at.astimezone(fuso_brasil)
+
     embed = discord.Embed(
         title=f"Mensagem aleatória de {alvo.display_name}",
         description=msg_escolhida.content,
         color=discord.Color.blue()
     )
     embed.set_author(name=alvo.display_name, icon_url=alvo.display_avatar.url)
-    embed.set_footer(text=f"Canal: #{msg_escolhida.channel.name} • {msg_escolhida.created_at.strftime('%d/%m/%Y %H:%M')}")
+    embed.set_footer(text=f"Canal: #{msg_escolhida.channel.name} • {data_msg_brasil.strftime('%d/%m/%Y %H:%M')} (horário de Brasília)")
 
     view = View()
     view.add_item(Button(label="Ver no contexto 🔍", style=discord.ButtonStyle.link, url=link_mensagem))
@@ -555,8 +583,9 @@ async def comandos(ctx):
 @bot.event
 async def on_ready():
     """Bot startup event"""
+    agora_brasil = obter_agora_brasil()
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
-    print('Bot is ready!')
+    print(f'Bot is ready! Horário atual do Brasil: {formatar_data_brasil(agora_brasil)}')
     print('------')
     
     # Start scheduled tasks
