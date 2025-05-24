@@ -5,14 +5,19 @@
         "autor_id": 329265386153443329,
         "tentativas": [
             {
+                "user": "neki_gabriel",
+                "valor": 5.0,
+                "data": "24/05/2025 15:21"
+            },
+            {
                 "user": "khaiydreams",
-                "valor": 7.0,
-                "data": "22/05/2025 03:25"
+                "valor": 9.0,
+                "data": "24/05/2025 16:01"
             },
             {
                 "user": "lurigami.",
-                "valor": 8.0,
-                "data": "23/05/2025 11:40"
+                "valor": 9.0,
+                "data": "24/05/2025 16:01"
             }
         ]
     }

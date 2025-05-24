@@ -17,6 +17,8 @@ intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='.', intents=intents)
 fuso_brasil = pytz.timezone("America/Sao_Paulo")
 
+OWNER_ID = 329265386153443329   # Replace with your Discord user ID
+
 # File constants
 ARQUIVO_SORTEIOS = "sorteios.json"
 ARQUIVO_RECORDS = "records.json"
@@ -183,6 +185,34 @@ class RecordModal(Modal, title="🏁 Criar Record"):
             color=discord.Color.green()
         )
         await interaction.response.send_message(embed=embed)
+
+class SugestaoModal(discord.ui.Modal, title="Enviar sugestão"):
+    sugestao = discord.ui.TextInput(
+        label="Qual é sua sugestão?",
+        style=discord.TextStyle.paragraph,
+        placeholder="Escreve aqui sua ideia pro bot!",
+        required=True,
+        max_length=1000,
+    )
+
+    async def on_submit(self, interaction: discord.Interaction):
+        dono = await bot.fetch_user(OWNER_ID)
+        embed = discord.Embed(
+            title="📬 Nova sugestão recebida!",
+            description=self.sugestao.value,
+            color=discord.Color.blue()
+        )
+        embed.set_footer(text=f"Enviado por: {interaction.user} (ID: {interaction.user.id})")
+
+        try:
+            await dono.send(embed=embed)
+            await interaction.response.send_message("Valeu! Sua sugestão foi enviada!", ephemeral=True)
+        except discord.Forbidden:
+            await interaction.response.send_message("Não consegui mandar pro dono, tenta avisar ele direto!", ephemeral=True)
+
+@bot.tree.command(name="sugestao", description="Mande uma sugestão pro criador do bot!")
+async def sugestao_command(interaction: discord.Interaction):
+    await interaction.response.send_modal(SugestaoModal())
 
 # ========================================
 # SCHEDULED TASKS
@@ -570,6 +600,7 @@ async def comandos(ctx):
             "`.tentativa [número do record] [quantidade]` - Tenta bater um record específico 💥\n"
             "`.ranking [número do record]` mostra o raking record específico 🐱‍👤\n"
             "`.deletar_record [número do record]` - Deleta um record (só quem criou pode excluir) 🗑️\n"
+            "`/sugestao` - Envia para nossa caixa de sugestões, uma ideia para ser adicionada no bot 💡\n"
         )
         if ctx.guild:
             await ctx.reply("Te mandei no PV, confere lá! 📬")
