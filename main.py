@@ -46,7 +46,7 @@ RESPONSE_CHANCE = 0.05  # reduzido pra 5% (ajuste conforme necessário)
 
 atividades = [
     discord.Game(name="Rankeando no WhoMessage 💬"),
-    discord.Streaming(name="Live Estudando 📚"),
+    discord.Streaming(name="Live Estudando 📚", url="https://www.twitch.tv/morena"),
     discord.Activity(type=discord.ActivityType.listening, name="Anjo 🎧"),
     discord.Activity(type=discord.ActivityType.watching, name="Lunemori jogando de Rell 👀"),
     discord.Activity(type=discord.ActivityType.watching, name="Vlogs da Morena ❤✨"),
