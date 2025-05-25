@@ -35,8 +35,10 @@ ARQUIVO_CONVERSAS = "conversas.json"
 msg_com_botao = None
 
 # AI Configuration
+ULTIMA_RESPOSTA_POR_CANAL = {}  # canal_id: datetime
+COOLDOWN_SEGUNDOS = 60  # intervalo mínimo entre respostas aleatórias
 MAX_CONTEXT_MESSAGES = 10  # Número máximo de mensagens para contexto
-RESPONSE_CHANCE = 0.2  # 20% de chance de responder sem menção (ajuste conforme necessário)
+RESPONSE_CHANCE = 0.05  # reduzido pra 5% (ajuste conforme necessário)
 
 # ========================================
 # AI CONVERSATION FUNCTIONS
@@ -127,20 +129,31 @@ async def gerar_resposta_ai(contexto: List[Dict], pergunta: str = None) -> str:
         return random.choice(respostas_backup)
 
 def deve_responder_mensagem(message: discord.Message) -> bool:
-    # Sempre responde se mencionado ou se a mensagem for reply à dele
+    canal_id = message.channel.id
+
     if bot.user in message.mentions:
         return True
     if message.reference and message.reference.resolved and message.reference.resolved.author == bot.user:
         return True
-    
-    # Não responde bots nem comandos
-    if message.author.bot:
+
+    if message.author.bot or message.content.startswith('.') or message.content.startswith('/'):
         return False
-    if message.content.startswith('.') or message.content.startswith('/'):
-        return False
-    
-    # Chance random só pra não floodar sempre
-    return random.random() < RESPONSE_CHANCE
+
+    # Cooldown: impede flood mesmo com chance aleatória
+    agora = datetime.datetime.now()
+    ultima_resposta = ULTIMA_RESPOSTA_POR_CANAL.get(canal_id)
+
+    if ultima_resposta:
+        delta = (agora - ultima_resposta).total_seconds()
+        if delta < COOLDOWN_SEGUNDOS:
+            return False
+
+    # 5% de chance de responder se estiver fora do cooldown
+    if random.random() < RESPONSE_CHANCE:
+        ULTIMA_RESPOSTA_POR_CANAL[canal_id] = agora
+        return True
+
+    return False
 
 # ========================================
 # UTILITY FUNCTIONS
