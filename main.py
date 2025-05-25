@@ -107,9 +107,9 @@ async def gerar_resposta_ai(contexto: List[Dict], pergunta: str = None) -> str:
         if pergunta:
             messages.append({"role": "user", "content": pergunta})
         
-        # Generate response - NOVA SINTAXE
+        # Generate response
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo-0125",
+            model="gpt-3.5-turbo",
             messages=messages,
             max_tokens=60,
             temperature=0.8,
