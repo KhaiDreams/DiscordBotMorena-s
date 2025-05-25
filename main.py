@@ -27,9 +27,9 @@ fuso_brasil = pytz.timezone("America/Sao_Paulo")
 OWNER_ID = 329265386153443329   # Replace with your Discord user ID
 
 # File constants
-ARQUIVO_SORTEIOS = "sorteios.json"
-ARQUIVO_RECORDS = "records.json"
-ARQUIVO_CONVERSAS = "conversas.json"
+ARQUIVO_SORTEIOS = "data/sorteios.json"
+ARQUIVO_RECORDS = "data/records.json"
+ARQUIVO_CONVERSAS = "data/conversas.json"
 
 # Global variables
 msg_com_botao = None
