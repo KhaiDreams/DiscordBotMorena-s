@@ -41,6 +41,18 @@ MAX_CONTEXT_MESSAGES = 10  # Número máximo de mensagens para contexto
 RESPONSE_CHANCE = 0.05  # reduzido pra 5% (ajuste conforme necessário)
 
 # ========================================
+# Random Status
+# ========================================
+
+atividades = [
+    discord.Game(name="Rankeando no WhoMessage 💬"),
+    discord.Streaming(name="Live Estudando 📚"),
+    discord.Activity(type=discord.ActivityType.listening, name="Anjo 🎧"),
+    discord.Activity(type=discord.ActivityType.watching, name="Lunemori jogando de Rell 👀"),
+    discord.Activity(type=discord.ActivityType.watching, name="Vlogs da Morena ❤✨"),
+]
+
+# ========================================
 # AI CONVERSATION FUNCTIONS
 # ========================================
 
@@ -382,6 +394,10 @@ async def conversa_info(ctx):
 # ========================================
 # SCHEDULED TASKS
 # ========================================
+@tasks.loop(minutes=10)  # Troca a cada 10 minutos
+async def mudar_status():
+    atividade = random.choice(atividades)
+    await bot.change_presence(status=discord.Status.online, activity=atividade)
 
 @tasks.loop(minutes=1)
 async def checar_sorteios():
@@ -820,6 +836,7 @@ async def on_ready():
     
     # Start scheduled tasks
     checar_sorteios.start()
+    mudar_status.start()
 
     # Sync slash commands
     try:
