@@ -36,7 +36,7 @@ msg_com_botao = None
 
 # AI Configuration
 MAX_CONTEXT_MESSAGES = 10  # Número máximo de mensagens para contexto
-RESPONSE_CHANCE = 0.3  # 30% de chance de responder sem menção (ajuste conforme necessário)
+RESPONSE_CHANCE = 0.2  # 20% de chance de responder sem menção (ajuste conforme necessário)
 
 # ========================================
 # AI CONVERSATION FUNCTIONS
@@ -86,41 +86,35 @@ def obter_contexto_conversa(canal_id: int) -> List[Dict]:
     return conversas.get(canal_str, [])
 
 async def gerar_resposta_ai(contexto: List[Dict], pergunta: str = None) -> str:
-    """Generate AI response based on context"""
     try:
-        # Build conversation for AI
-        messages =[
-        {
-            "role": "system",
-            "content": (
-                "Você é Morena, um bot do Discord descontraído e divertido, "
-                "com linguagem brasileira e gírias, respostas curtas e naturais, "
-                "bem brava, e que usa emojis com moderação."
-            )
-        }
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "Você é Morena, um bot do Discord descontraído e divertido, "
+                    "com linguagem brasileira e gírias, respostas curtas e naturais, "
+                    "bem brava, e que usa emojis com moderação."
+                )
+            }
         ]
         
-        # Add conversation context
-        for msg in contexto[-4:]:  # Last 4 messages for context
+        for msg in contexto[-4:]:
             role = "assistant" if msg["is_bot"] else "user"
             content = f"{msg['autor']}: {msg['conteudo']}" if not msg["is_bot"] else msg["conteudo"]
             messages.append({"role": role, "content": content})
         
-        # Add current question if provided
         if pergunta:
             messages.append({"role": "user", "content": pergunta})
         
-        # Generate response
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=messages,
             max_tokens=150,
             temperature=0.8
         )
-
         
         return response.choices[0].message.content.strip()
-        
+    
     except Exception as e:
         print(f"Erro ao gerar resposta da IA: {e}")
         respostas_backup = [
@@ -133,20 +127,19 @@ async def gerar_resposta_ai(contexto: List[Dict], pergunta: str = None) -> str:
         return random.choice(respostas_backup)
 
 def deve_responder_mensagem(message: discord.Message) -> bool:
-    """Determine if bot should respond to a message"""
-    # Always respond if mentioned or replied to
-    if bot.user in message.mentions or (message.reference and message.reference.resolved and message.reference.resolved.author == bot.user):
+    # Sempre responde se mencionado ou se a mensagem for reply à dele
+    if bot.user in message.mentions:
+        return True
+    if message.reference and message.reference.resolved and message.reference.resolved.author == bot.user:
         return True
     
-    # Don't respond to other bots
+    # Não responde bots nem comandos
     if message.author.bot:
         return False
-    
-    # Don't respond to commands
     if message.content.startswith('.') or message.content.startswith('/'):
         return False
     
-    # Random chance to respond to keep conversation flowing
+    # Chance random só pra não floodar sempre
     return random.random() < RESPONSE_CHANCE
 
 # ========================================
@@ -774,21 +767,21 @@ async def comandos(ctx):
 async def on_message(message):
     if message.author.bot:
         return
-
-    # Ignorar comandos (começam com . ou /)
+    
+    # Processa comandos normalmente
     if message.content.startswith('.') or message.content.startswith('/'):
         await bot.process_commands(message)
         return
-
-    # Adiciona a mensagem no histórico (somente se não for comando)
+    
+    # Salva mensagem no histórico
     adicionar_mensagem_conversa(
         canal_id=message.channel.id,
         autor=str(message.author.display_name),
         conteudo=message.content,
         is_bot=False
     )
-
-    # Decide se vai responder
+    
+    # Verifica se deve responder (incluindo DM)
     if deve_responder_mensagem(message) or isinstance(message.channel, discord.DMChannel):
         contexto = obter_contexto_conversa(message.channel.id)
         resposta = await gerar_resposta_ai(contexto, pergunta=message.content)
@@ -799,11 +792,10 @@ async def on_message(message):
             conteudo=resposta,
             is_bot=True
         )
-
+        
         await message.channel.send(resposta)
-
+    
     await bot.process_commands(message)
-
 
 @bot.event
 async def on_ready():
