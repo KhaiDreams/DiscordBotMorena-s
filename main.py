@@ -703,7 +703,7 @@ async def gugu(ctx):
 async def eu(ctx, membro: discord.Member = None):
     """Send a random phrase about someone"""
     # Load phrases from file
-    with open("frases_eu.txt", "r", encoding="utf-8") as f:
+    with open("data/frases_eu.txt", "r", encoding="utf-8") as f:
         FRASES_ZOEIRA = [linha.strip() for linha in f if linha.strip()]
     
     alvo = membro or ctx.author
