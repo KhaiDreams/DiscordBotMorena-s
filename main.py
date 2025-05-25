@@ -7,7 +7,7 @@ import random
 import datetime
 import json
 import pytz
-from openai import OpenAI
+import openai
 from typing import List, Dict
 
 # Environment setup
@@ -16,7 +16,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Configure OpenAI
-client = OpenAI(api_key=OPENAI_API_KEY)
+openai.api_key = OPENAI_API_KEY
 
 # Bot configuration
 intents = discord.Intents.all()
@@ -88,7 +88,8 @@ async def gerar_resposta_ai(contexto: List[Dict], pergunta: str = None) -> str:
     """Generate AI response based on context"""
     try:
         # Build conversation for AI
-        messages ={
+        messages =[
+        {
             "role": "system",
             "content": (
                 "Você é Morena, um bot do Discord descontraído e divertido, "
@@ -96,6 +97,7 @@ async def gerar_resposta_ai(contexto: List[Dict], pergunta: str = None) -> str:
                 "bem brava, e que usa emojis com moderação."
             )
         }
+        ]
         
         # Add conversation context
         for msg in contexto[-4:]:  # Last 4 messages for context
@@ -108,13 +110,11 @@ async def gerar_resposta_ai(contexto: List[Dict], pergunta: str = None) -> str:
             messages.append({"role": "user", "content": pergunta})
         
         # Generate response
-        response = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=messages,
-            max_tokens=60,
-            temperature=0.8,
-            presence_penalty=0.6,
-            frequency_penalty=0.6
+            max_tokens=150,
+            temperature=0.8
         )
 
         
