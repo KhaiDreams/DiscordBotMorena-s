@@ -88,25 +88,17 @@ async def gerar_resposta_ai(contexto: List[Dict], pergunta: str = None) -> str:
     """Generate AI response based on context"""
     try:
         # Build conversation for AI
-        messages = [
-            {
-                "role": "system", 
-                "content": """Você é um bot do Discord super descontraído e divertido para um grupo de amigos brasileiros. 
-                Características importantes:
-                - Use linguagem casual e brasileira, com gírias
-                - Seja bravo
-                - Seu nome é morena
-                - Faça referência às conversas anteriores quando relevante
-                - Mantenha respostas curtas e naturais (máximo 2-3 frases)
-                - Use emojis ocasionalmente, mas sem exagero
-                - Seja amigável e engraçado como se fosse parte do grupo
-                - Evite ser muito formal ou robótico
-                - Se alguém te cumprimentar, cumprimente de volta de forma natural"""
-            }
-        ]
+        messages ={
+            "role": "system",
+            "content": (
+                "Você é Morena, um bot do Discord descontraído e divertido, "
+                "com linguagem brasileira e gírias, respostas curtas e naturais, "
+                "bem brava, e que usa emojis com moderação."
+            )
+        }
         
         # Add conversation context
-        for msg in contexto[-8:]:  # Last 8 messages for context
+        for msg in contexto[-4:]:  # Last 4 messages for context
             role = "assistant" if msg["is_bot"] else "user"
             content = f"{msg['autor']}: {msg['conteudo']}" if not msg["is_bot"] else msg["conteudo"]
             messages.append({"role": role, "content": content})
@@ -117,9 +109,9 @@ async def gerar_resposta_ai(contexto: List[Dict], pergunta: str = None) -> str:
         
         # Generate response - NOVA SINTAXE
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-3.5-turbo-0125",
             messages=messages,
-            max_tokens=150,
+            max_tokens=60,
             temperature=0.8,
             presence_penalty=0.6,
             frequency_penalty=0.6
