@@ -7,10 +7,16 @@ import random
 import datetime
 import json
 import pytz
+from openai import OpenAI
+from typing import List, Dict
 
 # Environment setup
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# Configure OpenAI
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 # Bot configuration
 intents = discord.Intents.all()
@@ -22,9 +28,133 @@ OWNER_ID = 329265386153443329   # Replace with your Discord user ID
 # File constants
 ARQUIVO_SORTEIOS = "sorteios.json"
 ARQUIVO_RECORDS = "records.json"
+ARQUIVO_CONVERSAS = "conversas.json"
 
 # Global variables
 msg_com_botao = None
+
+# AI Configuration
+MAX_CONTEXT_MESSAGES = 10  # Número máximo de mensagens para contexto
+RESPONSE_CHANCE = 0.3  # 30% de chance de responder sem menção (ajuste conforme necessário)
+
+# ========================================
+# AI CONVERSATION FUNCTIONS
+# ========================================
+
+def carregar_conversas():
+    """Load conversation history from JSON file"""
+    if not os.path.exists(ARQUIVO_CONVERSAS):
+        with open(ARQUIVO_CONVERSAS, "w", encoding="utf-8") as f:
+            json.dump({}, f, ensure_ascii=False)
+    with open(ARQUIVO_CONVERSAS, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def salvar_conversas(conversas):
+    """Save conversation history to JSON file"""
+    with open(ARQUIVO_CONVERSAS, "w", encoding="utf-8") as f:
+        json.dump(conversas, f, indent=4, ensure_ascii=False)
+
+def adicionar_mensagem_conversa(canal_id: int, autor: str, conteudo: str, is_bot: bool = False):
+    """Add message to conversation history"""
+    conversas = carregar_conversas()
+    canal_str = str(canal_id)
+    
+    if canal_str not in conversas:
+        conversas[canal_str] = []
+    
+    # Add new message
+    mensagem = {
+        "autor": autor,
+        "conteudo": conteudo,
+        "timestamp": datetime.datetime.now().isoformat(),
+        "is_bot": is_bot
+    }
+    
+    conversas[canal_str].append(mensagem)
+    
+    # Keep only last MAX_CONTEXT_MESSAGES
+    if len(conversas[canal_str]) > MAX_CONTEXT_MESSAGES:
+        conversas[canal_str] = conversas[canal_str][-MAX_CONTEXT_MESSAGES:]
+    
+    salvar_conversas(conversas)
+
+def obter_contexto_conversa(canal_id: int) -> List[Dict]:
+    """Get conversation context for a channel"""
+    conversas = carregar_conversas()
+    canal_str = str(canal_id)
+    return conversas.get(canal_str, [])
+
+async def gerar_resposta_ai(contexto: List[Dict], pergunta: str = None) -> str:
+    """Generate AI response based on context"""
+    try:
+        # Build conversation for AI
+        messages = [
+            {
+                "role": "system", 
+                "content": """Você é um bot do Discord super descontraído e divertido para um grupo de amigos brasileiros. 
+                Características importantes:
+                - Use linguagem casual e brasileira, com gírias
+                - Seja bravo
+                - Seu nome é morena
+                - Faça referência às conversas anteriores quando relevante
+                - Mantenha respostas curtas e naturais (máximo 2-3 frases)
+                - Use emojis ocasionalmente, mas sem exagero
+                - Seja amigável e engraçado como se fosse parte do grupo
+                - Evite ser muito formal ou robótico
+                - Se alguém te cumprimentar, cumprimente de volta de forma natural"""
+            }
+        ]
+        
+        # Add conversation context
+        for msg in contexto[-8:]:  # Last 8 messages for context
+            role = "assistant" if msg["is_bot"] else "user"
+            content = f"{msg['autor']}: {msg['conteudo']}" if not msg["is_bot"] else msg["conteudo"]
+            messages.append({"role": role, "content": content})
+        
+        # Add current question if provided
+        if pergunta:
+            messages.append({"role": "user", "content": pergunta})
+        
+        # Generate response - NOVA SINTAXE
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+            max_tokens=150,
+            temperature=0.8,
+            presence_penalty=0.6,
+            frequency_penalty=0.6
+        )
+
+        
+        return response.choices[0].message.content.strip()
+        
+    except Exception as e:
+        print(f"Erro ao gerar resposta da IA: {e}")
+        respostas_backup = [
+            "Opa, não entendi direito 😅",
+            "Pode repetir? Bugou aqui kk",
+            "Eita, deu erro aqui, desculpa!",
+            "Hmm, não consegui processar isso 🤔",
+            "Falha na matrix! Tenta de novo?"
+        ]
+        return random.choice(respostas_backup)
+
+def deve_responder_mensagem(message: discord.Message) -> bool:
+    """Determine if bot should respond to a message"""
+    # Always respond if mentioned or replied to
+    if bot.user in message.mentions or (message.reference and message.reference.resolved and message.reference.resolved.author == bot.user):
+        return True
+    
+    # Don't respond to other bots
+    if message.author.bot:
+        return False
+    
+    # Don't respond to commands
+    if message.content.startswith('.') or message.content.startswith('/'):
+        return False
+    
+    # Random chance to respond to keep conversation flowing
+    return random.random() < RESPONSE_CHANCE
 
 # ========================================
 # UTILITY FUNCTIONS
@@ -213,6 +343,42 @@ class SugestaoModal(discord.ui.Modal, title="Enviar sugestão"):
 @bot.tree.command(name="sugestao", description="Mande uma sugestão pro criador do bot!")
 async def sugestao_command(interaction: discord.Interaction):
     await interaction.response.send_modal(SugestaoModal())
+
+# ========================================
+# AI COMMANDS
+# ========================================
+
+@bot.command()
+async def limpar_conversa(ctx):
+    """Clear conversation history for current channel (owner only)"""
+    if ctx.author.id != OWNER_ID:
+        await ctx.reply("❌ Só o dono do bot pode limpar o histórico!")
+        return
+    
+    conversas = carregar_conversas()
+    canal_str = str(ctx.channel.id)
+    
+    if canal_str in conversas:
+        del conversas[canal_str]
+        salvar_conversas(conversas)
+        await ctx.reply("🧹 Histórico de conversa limpo!")
+    else:
+        await ctx.reply("Não há histórico para limpar neste canal.")
+
+@bot.command()
+async def conversa_info(ctx):
+    """Show conversation stats"""
+    contexto = obter_contexto_conversa(ctx.channel.id)
+    if not contexto:
+        await ctx.reply("Nenhuma conversa registrada neste canal ainda.")
+        return
+    
+    embed = discord.Embed(
+        title="📊 Info da Conversa",
+        description=f"Mensagens no contexto: {len(contexto)}\nÚltima mensagem: há {(datetime.datetime.now() - datetime.datetime.fromisoformat(contexto[-1]['timestamp'])).seconds // 60} minutos",
+        color=discord.Color.blue()
+    )
+    await ctx.reply(embed=embed)
 
 # ========================================
 # SCHEDULED TASKS
@@ -610,6 +776,41 @@ async def comandos(ctx):
 # ========================================
 # BOT EVENTS
 # ========================================
+
+@bot.event
+async def on_message(message):
+    if message.author.bot:
+        return
+
+    # Ignorar comandos (começam com . ou /)
+    if message.content.startswith('.') or message.content.startswith('/'):
+        await bot.process_commands(message)
+        return
+
+    # Adiciona a mensagem no histórico (somente se não for comando)
+    adicionar_mensagem_conversa(
+        canal_id=message.channel.id,
+        autor=str(message.author.display_name),
+        conteudo=message.content,
+        is_bot=False
+    )
+
+    # Decide se vai responder
+    if deve_responder_mensagem(message) or isinstance(message.channel, discord.DMChannel):
+        contexto = obter_contexto_conversa(message.channel.id)
+        resposta = await gerar_resposta_ai(contexto, pergunta=message.content)
+        
+        adicionar_mensagem_conversa(
+            canal_id=message.channel.id,
+            autor="morena",
+            conteudo=resposta,
+            is_bot=True
+        )
+
+        await message.channel.send(resposta)
+
+    await bot.process_commands(message)
+
 
 @bot.event
 async def on_ready():
