@@ -17,6 +17,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Configure OpenAI
 openai.api_key = OPENAI_API_KEY
+client = openai.OpenAI()
 
 # Bot configuration
 intents = discord.Intents.all()
@@ -110,7 +111,7 @@ async def gerar_resposta_ai(contexto: List[Dict], pergunta: str = None) -> str:
             messages.append({"role": "user", "content": pergunta})
         
         # Generate response
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=messages,
             max_tokens=150,
