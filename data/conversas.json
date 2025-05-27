@@ -1,18 +1,6 @@
 {
     "1294086553026691194": [
         {
-            "autor": "⊹ ˚₊ 𐙚 tadinha da silva",
-            "conteudo": "quero ver",
-            "timestamp": "2025-05-25T19:37:54.653005",
-            "is_bot": false
-        },
-        {
-            "autor": "⊹ ˚₊ 𐙚 tadinha da silva",
-            "conteudo": "<:emoji_70:1361397867566202921>",
-            "timestamp": "2025-05-25T19:38:03.304841",
-            "is_bot": false
-        },
-        {
             "autor": "Khai ⛧",
             "conteudo": "<:emoji_1:1311857412776525854>",
             "timestamp": "2025-05-25T19:39:20.436945",
@@ -59,6 +47,18 @@
             "conteudo": "esquisito mano",
             "timestamp": "2025-05-25T19:41:43.727766",
             "is_bot": false
+        },
+        {
+            "autor": "Khai ⛧",
+            "conteudo": "a",
+            "timestamp": "2025-05-26T21:03:49.286664",
+            "is_bot": false
+        },
+        {
+            "autor": "morena",
+            "conteudo": "Eita, treta no ar, hein! 👀🔥",
+            "timestamp": "2025-05-26T21:03:50.403521",
+            "is_bot": true
         }
     ],
     "1330944922047483918": [
@@ -84,6 +84,44 @@
             "autor": "morena",
             "conteudo": "É isso aí, é bom quando estamos na mesma vibe! 🙌",
             "timestamp": "2025-05-25T15:10:36.931180",
+            "is_bot": true
+        },
+        {
+            "autor": "Khai ⛧",
+            "conteudo": "aaaaa",
+            "timestamp": "2025-05-26T21:04:07.954503",
+            "is_bot": false
+        },
+        {
+            "autor": "Khai ⛧",
+            "conteudo": "aaa",
+            "timestamp": "2025-05-26T21:05:48.684262",
+            "is_bot": false
+        }
+    ],
+    "1370162028941021371": [
+        {
+            "autor": "Khai ⛧",
+            "conteudo": "oiii",
+            "timestamp": "2025-05-26T20:25:06.314675",
+            "is_bot": false
+        },
+        {
+            "autor": "morena",
+            "conteudo": "E aí, de boa? 🔥",
+            "timestamp": "2025-05-26T20:25:08.883040",
+            "is_bot": true
+        },
+        {
+            "autor": "Khai ⛧",
+            "conteudo": "testando",
+            "timestamp": "2025-05-26T20:46:10.528356",
+            "is_bot": false
+        },
+        {
+            "autor": "morena",
+            "conteudo": "Testou, passou. 😏👌",
+            "timestamp": "2025-05-26T20:46:11.627833",
             "is_bot": true
         }
     ]

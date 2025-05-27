@@ -5,19 +5,24 @@
         "autor_id": 329265386153443329,
         "tentativas": [
             {
-                "user": "neki_gabriel",
-                "valor": 5.0,
-                "data": "24/05/2025 15:21"
+                "user": "khaiydreams",
+                "valor": 10.0,
+                "data": "26/05/2025 15:47"
             },
             {
-                "user": "khaiydreams",
-                "valor": 9.0,
-                "data": "24/05/2025 16:01"
+                "user": "neki_gabriel",
+                "valor": 6.0,
+                "data": "26/05/2025 15:48"
             },
             {
                 "user": "lurigami.",
-                "valor": 9.0,
-                "data": "24/05/2025 16:01"
+                "valor": 10.0,
+                "data": "26/05/2025 15:48"
+            },
+            {
+                "user": "erronblack__",
+                "valor": 1.0,
+                "data": "26/05/2025 15:49"
             }
         ]
     }
