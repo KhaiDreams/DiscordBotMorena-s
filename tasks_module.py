@@ -11,7 +11,7 @@ import discord
 
 def register_tasks(bot):
     atividades = [
-        discord.Game(name="Rankeando no WhoMessage 💬"),
+        discord.Game(name="Codando o WhoMessage 💬"),
         discord.Streaming(name="Live Estudando 📚", url="https://www.twitch.tv/morena"),
         discord.Activity(type=discord.ActivityType.listening, name="Anjo 🎧"),
         discord.Activity(type=discord.ActivityType.watching, name="Lunemori jogando de Rell 👀"),
