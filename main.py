@@ -19,6 +19,8 @@ from ai_commands import register_ai_commands
 from modals import RecordModal, SugestaoModal
 from tasks_module import register_tasks
 from record_commands import register_record_commands
+from discord import app_commands
+
 
 # Bot configuration
 intents = discord.Intents.all()
@@ -27,6 +29,20 @@ bot = commands.Bot(command_prefix='.', intents=intents)
 # ========================================
 # SLASH COMMANDS
 # ========================================
+
+@bot.tree.command(name="secreto", description="Mande uma mensagem anônima pra alguém via bot.")
+@app_commands.describe(usuario="Pessoa que vai receber a mensagem", mensagem="O que você quer enviar")
+async def secreto(interaction: discord.Interaction, usuario: discord.User, mensagem: str):
+    try:
+        # Tenta mandar a mensagem no PV do alvo
+        await usuario.send(
+            f"📩 **Mensagem secreta recebida:**\n>>> {mensagem}"
+        )
+
+        await interaction.response.send_message("✅ Mensagem enviada de forma anônima!", ephemeral=True)
+    except discord.Forbidden:
+        await interaction.response.send_message("❌ Não consegui enviar a DM. O usuário pode ter o PV fechado.", ephemeral=True)
+
 
 @bot.tree.command(name="sortear", description="Criar um sorteio 🎁")
 async def slash_sortear(interaction: discord.Interaction):
