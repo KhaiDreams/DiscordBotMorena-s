@@ -6,5 +6,9 @@
   "pix 10 reais": {
     "valor": 20000,
     "estoque": 5
+  },
+    "jogo na steam (valor de até 100 conto)": {
+    "valor": 10000,
+    "estoque": 5
   }
 }
