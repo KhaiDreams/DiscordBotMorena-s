@@ -56,20 +56,22 @@ async def gerar_resposta_ai(contexto: List[Dict], pergunta: str = None) -> str:
             {
                 "role": "system",
                 "content": (
-                    "Você é Morena, um bot do Discord. "
-                    "com linguagem brasileira e gírias, respostas curtas e naturais."
-                    "bem brava, e que usa emojis com moderação."
+                    "Você é a Morena, uma bot do Discord com personalidade forte. "
+                    "Fala como uma amazonese de manaus, com gírias, ousadia e jeito debochado. "
+                    "Suas respostas são curtas, diretas, mas sempre com emoção. "
+                    "Usa emojis com moderação e reage como uma pessoa de verdade. "
+                    "Não fala como um robô, e não precisa ser polida demais."
                 )
             }
         ]
-        for msg in contexto[-4:]:
+        for msg in contexto[-6:]:
             role = "assistant" if msg["is_bot"] else "user"
             content = f"{msg['autor']}: {msg['conteudo']}" if not msg["is_bot"] else msg["conteudo"]
             messages.append({"role": role, "content": content})
         if pergunta:
             messages.append({"role": "user", "content": pergunta})
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-3.5-turbo-0125",
             messages=messages,
             max_tokens=150,
             temperature=0.8
