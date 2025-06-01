@@ -154,6 +154,7 @@ def setup_fun_commands(bot):
                 "`/secreto @alguém mensagem` - Envia uma mensagem anônima no PV de alguém 🔒\n"
                 "`.double [valor] [v/p/b]` - Joga no Double, apostando na cor Vermelho (v), Preto (p) ou Branco (b) 🎲\n"
                 "`.saldo` - Consulta seu saldo atual 💰\n"
+                "`.transferir [valor] [@alguém]` - Transfere grana do teu saldo pra outro membro 💸\n"
                 "`.premios` - Mostra a lista de prêmios ou resgata🎁\n"
             )
             if ctx.guild:
