@@ -23,7 +23,6 @@ from discord import app_commands
 from economy_commands import setup_economy_commands
 import asyncio
 
-
 # Bot configuration
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='.', intents=intents)
@@ -44,7 +43,6 @@ async def secreto(interaction: discord.Interaction, usuario: discord.User, mensa
         await interaction.response.send_message("✅ Mensagem enviada de forma anônima!", ephemeral=True)
     except discord.Forbidden:
         await interaction.response.send_message("❌ Não consegui enviar a DM. O usuário pode ter o PV fechado.", ephemeral=True)
-
 
 @bot.tree.command(name="sortear", description="Criar um sorteio 🎁")
 async def slash_sortear(interaction: discord.Interaction):
@@ -129,4 +127,8 @@ async def start_bot():
     await bot.start(TOKEN)
 
 if __name__ == "__main__":
-    asyncio.run(start_bot())
+    try:
+        asyncio.run(start_bot())
+    except KeyboardInterrupt:
+        print("Bot interrompido manualmente. Fechando...")
+        pass
