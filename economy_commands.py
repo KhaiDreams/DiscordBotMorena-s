@@ -70,9 +70,14 @@ class PremioButton(Button):
 class PremiosView(View):
     def __init__(self, premios_data):
         super().__init__(timeout=120)  # 2 minutos para expirar os botões
+        row = 0
         for nome, info in premios_data.items():
             if info.get("estoque", 0) > 0:
-                self.add_item(PremioButton(nome, info))
+                button = PremioButton(nome, info)
+                button.row = row  # Cada botão numa linha diferente
+                self.add_item(button)
+                row += 1
+
 
 async def setup_economy_commands(bot: commands.Bot):
 
@@ -152,13 +157,41 @@ async def setup_economy_commands(bot: commands.Bot):
             await ctx.send("🚫 Nenhum prêmio disponível no momento.")
             return
 
-        embed = discord.Embed(title="🎁 Prêmios disponíveis")
+        embed = discord.Embed(
+            title="🎁 Lista de Prêmios Disponíveis",
+            description="Clique no botão correspondente para resgatar o prêmio desejado.",
+            color=discord.Color.gold()
+        )
+
         for nome, info in premios_data.items():
+            estoque = info.get("estoque", 0)
+            valor = info.get("valor", 0)
             embed.add_field(
-                name=f"{nome}",
-                value=f"💵 R${info['valor']} | 📦 Estoque: {info['estoque']}",
+                name=f"🎉 {nome}",
+                value=f"💵 **Valor:** R${valor}\n📦 **Estoque:** {estoque}",
                 inline=False
             )
 
         view = PremiosView(premios_data)
         await ctx.send(embed=embed, view=view)
+
+    @bot.command(name="transferir")
+    async def transferir(ctx, valor: int, membro: discord.Member):
+        remetente_id = str(ctx.author.id)
+        destinatario_id = str(membro.id)
+
+        if membro.id == ctx.author.id:
+            await ctx.send("🤨 Tu não pode transferir pra tu mesmo, né?!")
+            return
+        if valor <= 0:
+            await ctx.send("❌ O valor da transferência tem que ser maior que zero.")
+            return
+
+        saldo_remetente = obter_saldo(remetente_id)
+        if saldo_remetente < valor:
+            await ctx.send("💸 Tu não tem saldo suficiente pra essa transferência.")
+            return
+
+        alterar_saldo(remetente_id, -valor)
+        alterar_saldo(destinatario_id, valor)
+        await ctx.send(f"✅ {ctx.author.mention} transferiu R${valor} pra {membro.mention} com sucesso!")

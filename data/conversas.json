@@ -1,12 +1,6 @@
 {
     "1294086553026691194": [
         {
-            "autor": "caduzo",
-            "conteudo": "Vou me mudar hj as 18h",
-            "timestamp": "2025-05-31T18:20:03.082069",
-            "is_bot": false
-        },
-        {
             "autor": "⊹ ˚₊ 𐙚 tadinha da silva",
             "conteudo": "Oxe",
             "timestamp": "2025-05-31T18:20:24.866709",
@@ -58,6 +52,12 @@
             "autor": "Khai ⛧",
             "conteudo": "<:emoji_1:1311857412776525854>",
             "timestamp": "2025-06-01T19:48:00.436675",
+            "is_bot": false
+        },
+        {
+            "autor": "⊹ ˚₊ 𐙚 tadinha da silva",
+            "conteudo": "ja arrumou as coisas na casa vemeio?",
+            "timestamp": "2025-06-01T18:59:24.148503",
             "is_bot": false
         }
     ],
@@ -163,24 +163,6 @@
     ],
     "1330946760264122368": [
         {
-            "autor": "Lunemori",
-            "conteudo": "Ou khai",
-            "timestamp": "2025-05-29T20:30:41.697690",
-            "is_bot": false
-        },
-        {
-            "autor": "Lunemori",
-            "conteudo": "Manda ela falar que mico kk",
-            "timestamp": "2025-05-29T20:30:47.023644",
-            "is_bot": false
-        },
-        {
-            "autor": "Khai ⛧",
-            "conteudo": "<@1370153416793264320> oiii, fala que mico",
-            "timestamp": "2025-05-29T20:31:00.241148",
-            "is_bot": false
-        },
-        {
             "autor": "morena",
             "conteudo": "🙄 Que mico, hein!",
             "timestamp": "2025-05-29T20:31:00.776316",
@@ -221,6 +203,24 @@
             "conteudo": "kkkkkkkkkkkk",
             "timestamp": "2025-05-29T22:31:00.915625",
             "is_bot": false
+        },
+        {
+            "autor": "Khai ⛧",
+            "conteudo": "ok",
+            "timestamp": "2025-06-01T18:59:43.742893",
+            "is_bot": false
+        },
+        {
+            "autor": "Khai ⛧",
+            "conteudo": "<@287774526421336066> verifica seu saldo ai",
+            "timestamp": "2025-06-01T18:59:50.309555",
+            "is_bot": false
+        },
+        {
+            "autor": "morena",
+            "conteudo": "Ei, eu sou a Morena, não consigo verificar saldo de ninguém, só dar aquela moral com respostas iradas. Mas pera aí, como assim \"sendo substituída por um bot\"? Tamo junto nessa, bicho! 🤖💪",
+            "timestamp": "2025-06-01T18:59:51.654369",
+            "is_bot": true
         }
     ],
     "1331609308269383741": [
