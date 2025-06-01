@@ -32,24 +32,28 @@ OBS: Caso queira usar o código para seu próprio bot fique à vontade! Apenas c
 
 ## 📋 Lista de Comandos Disponíveis
 
-| Comando                      | Descrição                                           |
-|------------------------------|----------------------------------------------------|
-| `.oi`                        | O bot te dá um salve 😎                             |
-| `.rony`                      | Fala da novata Rony 🐢                              |
-| `.khai`                      | Elogia o Khai 😘                                    |
-| `.gugu`                      | Avisos sobre quando o Gugu ficará Online 📅         |
-| `.morena`                    | Sobre a mais mais (brilho✨) 😘                      |
-| `.comandos`                  | Manda essa lista aqui no seu PV 📬                  |
-| `.escolha [@alguém]`         | Escolhe uma mensagem aleatória da pessoa            |
-| `.sortear`                   | Cria um sorteio 🎉                                  |
-| `.sorteios`                  | Mostra a lista de sorteios criados 📜               |
-| `.eu [@alguém]`              | Vai falar algo bem carinhoso para você! 🤞          |
-| `/record`                    | Cria um desafio (record) que a galera pode tentar bater 🏁 |
-| `.records`                   | Mostra todos os records criados 🎯                   |
-| `.tentativa [nº record] [quantidade]` | Tenta bater um record específico 💥                |
-| `.ranking [nº record]`       | Mostra o ranking do record específico 🐱‍👤           |
-| `.deletar_record [nº record]`| Deleta um record (só quem criou pode excluir) 🗑️    |
-| `/sugestao`                  | Envia uma ideia para a caixa de sugestões do bot 💡 |
+| Comando                            | Descrição                                                        |
+|------------------------------------|-------------------------------------------------------------------|
+| `.oi`                              | O bot te dá um salve 😎                                          |
+| `.rony`                            | Fala da novata Rony 🐢                                           |
+| `.khai`                            | Elogia o Khai 😘                                                 |
+| `.gugu`                            | Avisos sobre quando o Gugu ficará Online 📅                      |
+| `.morena`                          | Sobre a mais mais (brilho✨) 😘                                   |
+| `.comandos`                        | Manda essa lista aqui no seu PV 📬                               |
+| `.escolha [@alguém]`               | Escolhe uma mensagem aleatória da pessoa                         |
+| `.sortear`                         | Cria um sorteio 🎉                                               |
+| `.sorteios`                        | Mostra a lista de sorteios criados 📜                            |
+| `.eu [@alguém]`                    | Vai falar algo bem carinhoso para você! 🤞                       |
+| `/record`                          | Cria um desafio (record) que a galera pode tentar bater 🏁       |
+| `.records`                         | Mostra todos os records criados 🎯                               |
+| `.tentativa [nº record] [quantidade]` | Tenta bater um record específico 💥                          |
+| `.ranking [nº record]`             | Mostra o ranking do record específico 🐱‍👤                       |
+| `.deletar_record [nº record]`      | Deleta um record (só quem criou pode excluir) 🗑️                |
+| `/sugestao`                        | Envia uma ideia para a caixa de sugestões do bot 💡              |
+| `.double [valor] [v/p/b]`          | Joga no Double apostando numa cor: Vermelho, Preto ou Branco 🎲 |
+| `.saldo`                           | Consulta seu saldo atual 💰                                     |
+| `.premios`                         | Mostra a lista de prêmios ou resgata 🎁                         |
+| `.transferir [valor] [@alguém]`    | Transfere grana do teu saldo pra outro membro 💸               |
 
 ---
 
