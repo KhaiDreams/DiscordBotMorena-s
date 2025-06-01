@@ -20,6 +20,8 @@ from modals import RecordModal, SugestaoModal
 from tasks_module import register_tasks
 from record_commands import register_record_commands
 from discord import app_commands
+from economy_commands import setup_economy_commands
+import asyncio
 
 
 # Bot configuration
@@ -117,11 +119,14 @@ async def on_ready():
 # BOT STARTUP
 # ========================================
 
-if __name__ == "__main__":
-    # Registre todos os comandos e eventos necessários ANTES de rodar o bot
+async def start_bot():
     setup_fun_commands(bot)
     register_raffle_commands(bot)
     register_record_commands(bot)
     register_ai_commands(bot)
     register_tasks(bot)
-    bot.run(TOKEN)
+    await setup_economy_commands(bot)
+    await bot.start(TOKEN)
+
+if __name__ == "__main__":
+    asyncio.run(start_bot())

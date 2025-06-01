@@ -1,0 +1,10 @@
+{
+  "nitro": {
+    "valor": 500,
+    "estoque": 5
+  },
+  "pix 10 reais": {
+    "valor": 100,
+    "estoque": 10
+  }
+}
