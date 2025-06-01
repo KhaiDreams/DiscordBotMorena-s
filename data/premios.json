@@ -1,10 +1,10 @@
 {
   "nitro no discord": {
     "valor": 10000,
-    "estoque": 5
+    "estoque": 1
   },
   "pix 10 reais": {
     "valor": 1000,
-    "estoque": 10
+    "estoque": 5
   }
 }
