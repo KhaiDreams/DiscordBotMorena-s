@@ -151,6 +151,7 @@ def setup_fun_commands(bot):
                 "`.ranking [número do record]` mostra o raking record específico 🐱‍👤\n"
                 "`.deletar_record [número do record]` - Deleta um record (só quem criou pode excluir) 🗑️\n"
                 "`/sugestao` - Envia para nossa caixa de sugestões, uma ideia para ser adicionada no bot 💡\n"
+                "`/secreto @alguém mensagem` - Envia uma mensagem anônima no PV de alguém 🔒\n"
             )
             if ctx.guild:
                 await ctx.reply("Te mandei no PV, confere lá! 📬")
