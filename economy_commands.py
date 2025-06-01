@@ -23,13 +23,13 @@ def salvar_dados(path, dados):
 def obter_saldo(user_id):
     dados = carregar_dados(ECONOMIA_PATH, {})
     if str(user_id) not in dados:
-        dados[str(user_id)] = 100
+        dados[str(user_id)] = 1000
         salvar_dados(ECONOMIA_PATH, dados)
     return dados[str(user_id)]
 
 def alterar_saldo(user_id, valor):
     dados = carregar_dados(ECONOMIA_PATH, {})
-    dados[str(user_id)] = dados.get(str(user_id), 100) + valor
+    dados[str(user_id)] = dados.get(str(user_id), 1000) + valor 
     salvar_dados(ECONOMIA_PATH, dados)
 
 class PremioButton(Button):
@@ -109,14 +109,16 @@ async def setup_economy_commands(bot: commands.Bot):
                 "branco": "⬜️"
             }.get(cor, "❓")
 
-        await ctx.send(f"🎰 Apostando R${aposta} na cor **{cor_usuario.upper()}**... Girando a roleta...")
-        msg = await ctx.send("🎰")
+        # Mensagem inicial (pra evitar 2 msgs quase seguidas)
+        msg = await ctx.send(f"🎰 Apostando R${aposta} na cor **{cor_usuario.upper()}**... Girando a roleta...")
 
         roleta = [random.choice(slots) for _ in range(8)] + [emoji_da_cor(resultado)]
+
+        # Animação otimizada, menos delay
         for i in range(len(roleta)):
             visivel = " ".join(roleta[max(0, i-4):i+1])
             await msg.edit(content=f"🎰 {visivel}")
-            await asyncio.sleep(0.4)
+            await asyncio.sleep(0.25)  # delay menor pra ficar mais fluido
 
         cor_embed = (
             discord.Color.red() if resultado == "vermelho"
