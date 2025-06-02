@@ -12,6 +12,8 @@ OWNER_ID = 329265386153443329   # Substitua pelo seu ID do Discord
 ARQUIVO_SORTEIOS = "data/sorteios.json"
 ARQUIVO_RECORDS = "data/records.json"
 ARQUIVO_CONVERSAS = "data/conversas.json"
+ARQUIVO_ECONOMIA = "data/economia.json"
+ARQUIVO_PREMIOS = "data/premios.json"
 
 # Configurações de IA
 COOLDOWN_SEGUNDOS = 60

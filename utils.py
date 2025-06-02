@@ -2,6 +2,7 @@ import datetime
 import pytz
 import os
 import json
+from config import ARQUIVO_SORTEIOS, ARQUIVO_RECORDS
 
 fuso_brasil = pytz.timezone("America/Sao_Paulo")
 
@@ -16,9 +17,6 @@ def formatar_data_brasil(dt):
 def converter_para_brasil(dt_string):
     dt_naive = datetime.datetime.strptime(dt_string, "%d/%m/%Y %H:%M")
     return fuso_brasil.localize(dt_naive)
-
-ARQUIVO_SORTEIOS = "data/sorteios.json"
-ARQUIVO_RECORDS = "data/records.json"
 
 def carregar_sorteios():
     if not os.path.exists(ARQUIVO_SORTEIOS):

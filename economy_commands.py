@@ -5,10 +5,10 @@ import random
 import asyncio
 import json
 import os
+from config import ARQUIVO_ECONOMIA, ARQUIVO_PREMIOS
 
-ECONOMIA_PATH = "data/economia.json"
-PREMIOS_PATH = "data/premios.json"
-
+ECONOMIA_PATH = ARQUIVO_ECONOMIA
+PREMIOS_PATH = ARQUIVO_PREMIOS
 apostando_agora = set()
 
 def carregar_dados(path, default):
