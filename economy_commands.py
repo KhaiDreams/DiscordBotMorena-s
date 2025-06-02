@@ -9,6 +9,8 @@ import os
 ECONOMIA_PATH = "data/economia.json"
 PREMIOS_PATH = "data/premios.json"
 
+apostando_agora = set()
+
 def carregar_dados(path, default):
     if not os.path.exists(path):
         with open(path, "w", encoding="utf-8") as f:
@@ -84,15 +86,24 @@ async def setup_economy_commands(bot: commands.Bot):
     @bot.command(name="double")
     async def double(ctx, aposta: int, cor_aposta: str = None):
         user_id = str(ctx.author.id)
+
+        if user_id in apostando_agora:
+            await ctx.send("⏳ Calma aí! Tu já tá fazendo uma aposta, espera terminar.")
+            return
+        apostando_agora.add(user_id)
+
         saldo = obter_saldo(user_id)
         if aposta <= 0:
             await ctx.send("🟥 Aposta inválida.")
+            apostando_agora.discard(user_id)
             return
         if aposta > saldo:
             await ctx.send("💸 Tu não tem saldo suficiente!")
+            apostando_agora.discard(user_id)
             return
         if cor_aposta is None or cor_aposta.lower() not in ("v", "p", "b"):
             await ctx.send("❌ Você precisa escolher a cor da aposta: `v` para vermelho, `p` para preto, `b` para branco.")
+            apostando_agora.discard(user_id)
             return
 
         cores_map = {
@@ -104,7 +115,7 @@ async def setup_economy_commands(bot: commands.Bot):
 
         slots = ["🟥", "⬛", "⬜️"]
         cores = ["vermelho", "preto", "branco"]
-        pesos = [47, 47, 5]  # Branco mais raro
+        pesos = [47, 47, 5]  # Branco é mais raro
         resultado = random.choices(cores, weights=pesos)[0]
 
         def emoji_da_cor(cor):
@@ -143,6 +154,8 @@ async def setup_economy_commands(bot: commands.Bot):
         else:
             alterar_saldo(user_id, -aposta)
             await ctx.send(f"😢 Você perdeu R${aposta}. Saldo atual: R${obter_saldo(user_id)}")
+
+        apostando_agora.discard(user_id)
 
     @bot.command(name="saldo")
     async def saldo(ctx):

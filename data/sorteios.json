@@ -1,1 +1,16 @@
-[]
+[    {
+        "titulo": "Sorteio de Saldo para apostar no Double",
+        "participantes": [
+            "Rony",
+            "Fraga",
+            "Gugu",
+            "Lunemori",
+            "Morena",
+            "Neki"
+        ],
+        "data": "01/06/2025 20:00",
+        "feito": true,
+        "canal_id": 1330946760264122368,
+        "vencedor": "Fraga"
+    }
+]
