@@ -11,11 +11,13 @@ import discord
 
 def register_tasks(bot):
     atividades = [
-        discord.Game(name="Codando o WhoMessage 💬"),
+        discord.Game(name="Apostando no Dlouble 🃏"),
         discord.Streaming(name="Live Estudando 📚", url="https://www.twitch.tv/morena"),
         discord.Activity(type=discord.ActivityType.listening, name="Anjo 🎧"),
-        discord.Activity(type=discord.ActivityType.watching, name="Lunemori jogando de Rell 👀"),
+        discord.Activity(type=discord.ActivityType.watching, name="Como ganhar dinheiro 💰"),
         discord.Activity(type=discord.ActivityType.watching, name="Vlogs da Morena ❤✨"),
+        discord.Activity(type=discord.ActivityType.listening, name="Black Pink 🎧"),
+        discord.Activity(type=discord.ActivityType.watching, name="Saia justa 🤔"),
     ]
 
     @tasks.loop(minutes=10)
