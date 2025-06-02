@@ -3,36 +3,12 @@ from discord.ext import commands
 from discord.ui import View, Button
 import random
 import asyncio
-import json
-import os
-from config import ARQUIVO_ECONOMIA, ARQUIVO_PREMIOS
+from config import ARQUIVO_PREMIOS
+from utils import carregar_dados, salvar_dados, obter_saldo, alterar_saldo
 
-ECONOMIA_PATH = ARQUIVO_ECONOMIA
 PREMIOS_PATH = ARQUIVO_PREMIOS
+
 apostando_agora = set()
-
-def carregar_dados(path, default):
-    if not os.path.exists(path):
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(default, f, indent=2, ensure_ascii=False)
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def salvar_dados(path, dados):
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(dados, f, indent=2, ensure_ascii=False)
-
-def obter_saldo(user_id):
-    dados = carregar_dados(ECONOMIA_PATH, {})
-    if str(user_id) not in dados:
-        dados[str(user_id)] = 1000
-        salvar_dados(ECONOMIA_PATH, dados)
-    return dados[str(user_id)]
-
-def alterar_saldo(user_id, valor):
-    dados = carregar_dados(ECONOMIA_PATH, {})
-    dados[str(user_id)] = dados.get(str(user_id), 1000) + valor
-    salvar_dados(ECONOMIA_PATH, dados)
 
 class PremioButton(Button):
     def __init__(self, nome_premio, info_premio):
@@ -58,7 +34,6 @@ class PremioButton(Button):
             await interaction.response.send_message("💸 Saldo insuficiente para resgatar esse prêmio.", ephemeral=True)
             return
 
-        # Atualiza dados
         premio["estoque"] -= 1
         alterar_saldo(user_id, -premio["valor"])
         premio.setdefault("resgatados", []).append({
@@ -71,15 +46,14 @@ class PremioButton(Button):
 
 class PremiosView(View):
     def __init__(self, premios_data):
-        super().__init__(timeout=120)  # 2 minutos para expirar os botões
+        super().__init__(timeout=120)
         row = 0
         for nome, info in premios_data.items():
             if info.get("estoque", 0) > 0:
                 button = PremioButton(nome, info)
-                button.row = row  # Cada botão numa linha diferente
+                button.row = row
                 self.add_item(button)
                 row += 1
-
 
 async def setup_economy_commands(bot: commands.Bot):
 
@@ -106,24 +80,16 @@ async def setup_economy_commands(bot: commands.Bot):
             apostando_agora.discard(user_id)
             return
 
-        cores_map = {
-            "v": "vermelho",
-            "p": "preto",
-            "b": "branco"
-        }
+        cores_map = {"v": "vermelho", "p": "preto", "b": "branco"}
         cor_usuario = cores_map[cor_aposta.lower()]
 
         slots = ["🟥", "⬛", "⬜️"]
         cores = ["vermelho", "preto", "branco"]
-        pesos = [47, 47, 5]  # Branco é mais raro
+        pesos = [47, 47, 5]
         resultado = random.choices(cores, weights=pesos)[0]
 
         def emoji_da_cor(cor):
-            return {
-                "vermelho": "🟥",
-                "preto": "⬛",
-                "branco": "⬜️"
-            }.get(cor, "❓")
+            return {"vermelho": "🟥", "preto": "⬛", "branco": "⬜️"}.get(cor, "❓")
 
         await ctx.send(f"🎰 Apostando R${aposta} na cor **{cor_usuario.upper()}**... Girando a roleta...")
         msg = await ctx.send("🎰")
@@ -139,11 +105,7 @@ async def setup_economy_commands(bot: commands.Bot):
             else discord.Color.dark_gray() if resultado == "preto"
             else discord.Color.light_grey()
         )
-        embed = discord.Embed(
-            title="🎲 DOUBLE",
-            description=f"O resultado foi **{resultado.upper()}**!",
-            color=cor_embed
-        )
+        embed = discord.Embed(title="🎲 DOUBLE", description=f"O resultado foi **{resultado.upper()}**!", color=cor_embed)
         await ctx.send(embed=embed)
 
         multiplicadores = {"vermelho": 2, "preto": 2, "branco": 14}
@@ -179,11 +141,7 @@ async def setup_economy_commands(bot: commands.Bot):
         for nome, info in premios_data.items():
             estoque = info.get("estoque", 0)
             valor = info.get("valor", 0)
-            embed.add_field(
-                name=f"🎉 {nome}",
-                value=f"💵 **Valor:** R${valor}\n📦 **Estoque:** {estoque}",
-                inline=False
-            )
+            embed.add_field(name=f"🎉 {nome}", value=f"💵 **Valor:** R${valor}\n📦 **Estoque:** {estoque}", inline=False)
 
         view = PremiosView(premios_data)
         await ctx.send(embed=embed, view=view)
