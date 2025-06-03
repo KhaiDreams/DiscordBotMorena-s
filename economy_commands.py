@@ -62,21 +62,21 @@ async def setup_economy_commands(bot: commands.Bot):
         user_id = str(ctx.author.id)
 
         if user_id in apostando_agora:
-            await ctx.send("⏳ Calma aí! Tu já tá fazendo uma aposta, espera terminar.")
+            await ctx.send(f"⏳ {ctx.author.mention} calma aí! Tu já tá fazendo uma aposta, espera terminar.")
             return
         apostando_agora.add(user_id)
 
         saldo = obter_saldo(user_id)
         if aposta <= 0:
-            await ctx.send("🟥 Aposta inválida.")
+            await ctx.send(f"🟥 {ctx.author.mention} aposta inválida.")
             apostando_agora.discard(user_id)
             return
         if aposta > saldo:
-            await ctx.send("💸 Tu não tem saldo suficiente!")
+            await ctx.send(f"💸 {ctx.author.mention} tu não tem saldo suficiente!")
             apostando_agora.discard(user_id)
             return
         if cor_aposta is None or cor_aposta.lower() not in ("v", "p", "b"):
-            await ctx.send("❌ Você precisa escolher a cor da aposta: `v` para vermelho, `p` para preto, `b` para branco.")
+            await ctx.send(f"❌ {ctx.author.mention} você precisa escolher a cor da aposta: `v` para vermelho, `p` para preto, `b` para branco.")
             apostando_agora.discard(user_id)
             return
 
@@ -91,7 +91,7 @@ async def setup_economy_commands(bot: commands.Bot):
         def emoji_da_cor(cor):
             return {"vermelho": "🟥", "preto": "⬛", "branco": "⬜️"}.get(cor, "❓")
 
-        await ctx.send(f"🎰 Apostando R${aposta} na cor **{cor_usuario.upper()}**... Girando a roleta...")
+        await ctx.send(f"🎰 {ctx.author.mention} apostou R${aposta} na cor **{cor_usuario.upper()}**... Girando a roleta...")
         msg = await ctx.send("🎰")
 
         roleta = [random.choice(slots) for _ in range(8)] + [emoji_da_cor(resultado)]
@@ -105,17 +105,21 @@ async def setup_economy_commands(bot: commands.Bot):
             else discord.Color.dark_gray() if resultado == "preto"
             else discord.Color.light_grey()
         )
-        embed = discord.Embed(title="🎲 DOUBLE", description=f"O resultado foi **{resultado.upper()}**!", color=cor_embed)
+        embed = discord.Embed(
+            title="🎲 DOUBLE",
+            description=f"{ctx.author.mention}, o resultado foi **{resultado.upper()}**!",
+            color=cor_embed
+        )
         await ctx.send(embed=embed)
 
         multiplicadores = {"vermelho": 2, "preto": 2, "branco": 14}
         if resultado == cor_usuario:
             ganho = aposta * (multiplicadores[resultado] - 1)
             alterar_saldo(user_id, ganho)
-            await ctx.send(f"💰 Você ganhou R${ganho}! Saldo atual: R${obter_saldo(user_id)}")
+            await ctx.send(f"💰 {ctx.author.mention} ganhou R${ganho}! Saldo atual: R${obter_saldo(user_id)}")
         else:
             alterar_saldo(user_id, -aposta)
-            await ctx.send(f"😢 Você perdeu R${aposta}. Saldo atual: R${obter_saldo(user_id)}")
+            await ctx.send(f"😢 {ctx.author.mention} perdeu R${aposta}. Saldo atual: R${obter_saldo(user_id)}")
 
         apostando_agora.discard(user_id)
 
