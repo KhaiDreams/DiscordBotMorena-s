@@ -6,8 +6,11 @@ from utils import (
     carregar_sorteios,
     salvar_sorteios,
     converter_para_brasil,
+    carregar_dados,
+    salvar_dados,
 )
 import discord
+from config import ARQUIVO_ECONOMIA
 
 def register_tasks(bot):
     atividades = [
@@ -61,6 +64,18 @@ def register_tasks(bot):
 
         salvar_sorteios(atualizados)
 
-    # Exporte as tasks para serem iniciadas no on_ready
+    @tasks.loop(hours=24)
+    async def tarefa_diaria():
+        agora = obter_agora_brasil()
+        print(f"Restaurando valores mínimos dos usuários em {formatar_data_brasil(agora)}")
+
+        economia = carregar_dados(ARQUIVO_ECONOMIA, {})
+        for user_id, saldo in economia.items():
+            if saldo < 1000:
+                economia[user_id] = 1000  # reset pro mínimo
+        salvar_dados(ARQUIVO_ECONOMIA, economia)
+
+    # Exporte as tasks pra serem iniciadas no on_ready
     bot.mudar_status_task = mudar_status
     bot.checar_sorteios_task = checar_sorteios
+    bot.tarefa_diaria_task = tarefa_diaria
