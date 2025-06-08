@@ -66,9 +66,6 @@ def register_tasks(bot):
 
     @tasks.loop(hours=24)
     async def resetar_valor_minimo():
-        agora = obter_agora_brasil()
-        print(f"Restaurando valores mínimos dos usuários em {formatar_data_brasil(agora)}")
-
         economia = carregar_dados(ARQUIVO_ECONOMIA, {})
         for user_id, saldo in economia.items():
             if saldo < 1000:
