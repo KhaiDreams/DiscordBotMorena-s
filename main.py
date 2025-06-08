@@ -106,6 +106,7 @@ async def on_ready():
     if not getattr(bot, "tasks_started", False):
         bot.mudar_status_task.start()
         bot.checar_sorteios_task.start()
+        bot.resetar_valor_minimo_task.start()
         bot.tasks_started = True
     try:
         synced = await bot.tree.sync()

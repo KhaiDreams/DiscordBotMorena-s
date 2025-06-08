@@ -65,7 +65,7 @@ def register_tasks(bot):
         salvar_sorteios(atualizados)
 
     @tasks.loop(hours=24)
-    async def tarefa_diaria():
+    async def resetar_valor_minimo():
         agora = obter_agora_brasil()
         print(f"Restaurando valores mínimos dos usuários em {formatar_data_brasil(agora)}")
 
@@ -78,4 +78,4 @@ def register_tasks(bot):
     # Exporte as tasks pra serem iniciadas no on_ready
     bot.mudar_status_task = mudar_status
     bot.checar_sorteios_task = checar_sorteios
-    bot.tarefa_diaria_task = tarefa_diaria
+    bot.resetar_valor_minimo_task = resetar_valor_minimo
