@@ -9,6 +9,12 @@
   },
   "jogo na steam (valor de até 100 conto)": {
     "valor": 30000,
-    "estoque": 1
+    "estoque": 0,
+    "resgatados": [
+      {
+        "id": 900448145379561542,
+        "nome": "zzfraga"
+      }
+    ]
   }
 }
