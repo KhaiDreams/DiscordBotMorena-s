@@ -66,3 +66,9 @@ def alterar_saldo(user_id, valor):
     dados = carregar_dados(ARQUIVO_ECONOMIA, {})
     dados[str(user_id)] = dados.get(str(user_id), 1000) + valor
     salvar_dados(ARQUIVO_ECONOMIA, dados)
+
+def debitar_saldo(user_id, valor):
+    alterar_saldo(user_id, -abs(valor))
+
+def adicionar_saldo(user_id, valor):
+    alterar_saldo(user_id, abs(valor))

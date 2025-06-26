@@ -21,6 +21,7 @@ from tasks_module import register_tasks
 from record_commands import register_record_commands
 from discord import app_commands
 from economy_commands import setup_economy_commands
+from horse_race_slash import setup_horse_race_slash
 import asyncio
 
 # Bot configuration
@@ -124,6 +125,7 @@ async def start_bot():
     register_record_commands(bot)
     register_ai_commands(bot)
     register_tasks(bot)
+    setup_horse_race_slash(bot)
     await setup_economy_commands(bot)
     await bot.start(TOKEN)
 
