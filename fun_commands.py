@@ -165,9 +165,9 @@ def setup_fun_commands(bot):
             "- O saldo é debitado na hora da aposta.\n"
             "- Todos podem apostar juntos, cada um em qualquer cavalo.\n"
             "- O progresso dos cavalos é animado no chat, e todos acompanham juntos.\n"
-            "- Quem apostar no cavalo vencedor divide o prêmio (90% do total apostado), de forma proporcional ao valor apostado.\n"
-            "  Exemplo: se você apostar 10.000 e outro apostar 10 no mesmo cavalo, você recebe uma parte muito maior do prêmio.\n"
-            "- Se só uma pessoa apostar, ela pode ganhar sozinha.\n"
+            "- Se as apostas dos ganhadores forem equivalentes (diferença até 20%), o prêmio é o valor total apostado, dividido igualmente.\n"
+            "- Se só uma pessoa apostar, ou se houver grande diferença entre os valores apostados, o prêmio é 150% do valor apostado pelo ganhador.\n"
+            "- Caso contrário, o prêmio é proporcional ao valor apostado (90% do total apostado).\n"
             "- Se ninguém apostar, a corrida é cancelada.\n"
             "- O comando é fácil, rápido e divertido!\n"
         )
