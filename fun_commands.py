@@ -132,31 +132,48 @@ def setup_fun_commands(bot):
     @bot.command()
     async def comandos(ctx):
         """Send command list via DM"""
+        comandos_texto = (
+            "**📋 Lista de Comandos Disponíveis:**\n\n"
+            ".oi - O bot te dá um salve 😎\n"
+            ".rony - Fala da novata Rony 🐢\n"
+            ".khai - Elogia o Khai 😘\n"
+            ".gugu - Avisos sobre quando o Gugu ficará Online 📅\n"
+            ".morena - Sobre a mais mais (brilho✨) 😘\n"
+            ".comandos - Manda essa lista aqui no seu PV 📬\n"
+            ".escolha [@alguém] - Escolhe uma mensagem aleatória da pessoa\n"
+            ".sortear - Cria um sorteio 🎉\n"
+            ".sorteios - Mostra a lista de sorteios criados 📜\n"
+            ".eu [@alguém] - Vai falar algo bem carinhoso para você! 🤞\n"
+            "/record - Cria um desafio (record) que a galera pode tentar bater 🏁\n"
+            ".records - Mostra todos os records criados 🎯\n"
+            ".tentativa [número do record] [quantidade] - Tenta bater um record específico 💥\n"
+            ".ranking [número do record] mostra o raking record específico 🐱‍👤\n"
+            ".deletar_record [número do record] - Deleta um record (só quem criou pode excluir) 🗑️\n"
+            "/sugestao - Envia para nossa caixa de sugestões, uma ideia para ser adicionada no bot 💡\n"
+            "/secreto @alguém mensagem - Envia uma mensagem anônima no PV de alguém 🔒\n"
+            ".double [valor] [v/p/b] - Joga no Double, apostando na cor Vermelho (v), Preto (p) ou Branco (b) 🎲\n"
+            ".saldo - Consulta seu saldo atual 💰\n"
+            ".transferir [valor] [@alguém] - Transfere grana do teu saldo pra outro membro 💸\n"
+            ".premios - Mostra a lista de prêmios ou resgata🎁\n"
+            "/corrida - Inicia uma corrida de cavalos com apostas entre os jogadores! Use o botão/modal para apostar facilmente. 🏇\n"
+        )
+        corrida_explicacao = (
+            "\n**Como funciona a Corrida de Cavalos:**\n"
+            "- Use `/corrida` para iniciar uma corrida no canal.\n"
+            "- Todos têm 30 segundos para apostar em um dos 3 cavalos, usando o modal que aparece ao clicar no comando.\n"
+            "- Você escolhe o valor da aposta e o número do cavalo.\n"
+            "- O saldo é debitado na hora da aposta.\n"
+            "- Todos podem apostar juntos, cada um em qualquer cavalo.\n"
+            "- O progresso dos cavalos é animado no chat, e todos acompanham juntos.\n"
+            "- Quem apostar no cavalo vencedor divide o prêmio (90% do total apostado), de forma proporcional ao valor apostado.\n"
+            "  Exemplo: se você apostar 10.000 e outro apostar 10 no mesmo cavalo, você recebe uma parte muito maior do prêmio.\n"
+            "- Se só uma pessoa apostar, ela pode ganhar sozinha.\n"
+            "- Se ninguém apostar, a corrida é cancelada.\n"
+            "- O comando é fácil, rápido e divertido!\n"
+        )
         try:
-            await ctx.author.send(
-                "**📋 Lista de Comandos Disponíveis:**\n\n"
-                "`.oi` - O bot te dá um salve 😎\n"
-                "`.rony` - Fala da novata Rony 🐢\n"
-                "`.khai` - Elogia o Khai 😘\n"
-                "`.gugu` - Avisos sobre quando o Gugu ficará Online 📅\n"
-                "`.morena` - Sobre a mais mais (brilho✨) 😘\n"
-                "`.comandos` - Manda essa lista aqui no seu PV 📬\n"
-                "`.escolha [@alguém]` - Escolhe uma mensagem aleatória da pessoa\n"
-                "`.sortear` - Cria um sorteio 🎉\n"
-                "`.sorteios` - Mostra a lista de sorteios criados 📜\n"
-                "`.eu [@alguém]` - Vai falar algo bem carinhoso para você! 🤞\n"
-                "`/record` - Cria um desafio (record) que a galera pode tentar bater 🏁\n"
-                "`.records` - Mostra todos os records criados 🎯\n"
-                "`.tentativa [número do record] [quantidade]` - Tenta bater um record específico 💥\n"
-                "`.ranking [número do record]` mostra o raking record específico 🐱‍👤\n"
-                "`.deletar_record [número do record]` - Deleta um record (só quem criou pode excluir) 🗑️\n"
-                "`/sugestao` - Envia para nossa caixa de sugestões, uma ideia para ser adicionada no bot 💡\n"
-                "`/secreto @alguém mensagem` - Envia uma mensagem anônima no PV de alguém 🔒\n"
-                "`.double [valor] [v/p/b]` - Joga no Double, apostando na cor Vermelho (v), Preto (p) ou Branco (b) 🎲\n"
-                "`.saldo` - Consulta seu saldo atual 💰\n"
-                "`.transferir [valor] [@alguém]` - Transfere grana do teu saldo pra outro membro 💸\n"
-                "`.premios` - Mostra a lista de prêmios ou resgata🎁\n"
-            )
+            await ctx.author.send(comandos_texto)
+            await ctx.author.send(corrida_explicacao)
             if ctx.guild:
                 await ctx.reply("Te mandei no PV, confere lá! 📬")
         except discord.Forbidden:
