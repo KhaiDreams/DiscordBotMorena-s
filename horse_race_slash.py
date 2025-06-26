@@ -31,10 +31,15 @@ class CorridaAposta:
                 break
 
     def get_animacao(self):
+        # Calcula as posições dos cavalos
+        posicoes = sorted([(i, pos) for i, pos in enumerate(self.andamento)], key=lambda x: -x[1])
+        ranking = {idx: rank+1 for rank, (idx, _) in enumerate(posicoes)}
         linhas = []
         for idx, cavalo in enumerate(self.cavalos):
             pos = min(self.andamento[idx], DISTANCIA)
-            pista = cavalo + ("-" * pos) + "|🏁|"
+            lugar = ranking[idx]
+            lugar_str = f"{lugar}º lugar"
+            pista = cavalo + ("-" * pos) + "|🏁|" + f" {lugar_str}"
             linhas.append(pista)
         return "\n".join(linhas)
 
@@ -150,13 +155,28 @@ class HorseRaceSlash(commands.Cog):
         ganhadores = [(uid, valor) for uid, (valor, idx) in corrida.apostas.items() if idx == idx_vencedor]
         total_apostado = sum(valor for valor, _ in corrida.apostas.values())
         total_apostado_vencedor = sum(valor for uid, valor in ganhadores)
-        premio_total = int(total_apostado * 0.9)
-        if ganhadores:
+        # Lógica de prêmio
+        if len(ganhadores) == 1 or (len(ganhadores) == 1 and len(corrida.apostas) == 1):
+            # Jogador sozinho: 150% do valor apostado
+            uid, valor = ganhadores[0]
+            premio = int(valor * 1.5)
+            adicionar_saldo(uid, premio)
+            texto = f"🏆 O cavalo vencedor foi {cavalo_vencedor}!\n<@{uid}> ganhou {premio} moedas apostando {valor}! (Jogo solo: 150% do valor apostado)"
+        elif len(ganhadores) > 1 and abs(1 - (min(v for _, v in ganhadores) / max(v for _, v in ganhadores))) <= 0.2:
+            # Apostas equivalentes (diferença até 20%): prêmio é o total apostado
+            premio_unit = int(total_apostado // len(ganhadores))
+            texto = f"🏆 O cavalo vencedor foi {cavalo_vencedor}!\n"
+            for uid, valor in ganhadores:
+                adicionar_saldo(uid, premio_unit)
+                texto += f"<@{uid}> ganhou {premio_unit} moedas apostando {valor}! (Apostas equivalentes: prêmio total dividido)\n"
+        elif len(ganhadores) > 0:
+            # Prêmio proporcional, 90% do total apostado
+            premio_total = int(total_apostado * 0.9)
             texto = f"🏆 O cavalo vencedor foi {cavalo_vencedor}!\n"
             for uid, valor in ganhadores:
                 premio = int((valor / total_apostado_vencedor) * premio_total)
                 adicionar_saldo(uid, premio)
-                texto += f"<@{uid}> ganhou {premio} moedas apostando {valor}!\n"
+                texto += f"<@{uid}> ganhou {premio} moedas apostando {valor}! (Prêmio proporcional)\n"
             texto += f"\nO prêmio é proporcional ao valor apostado."
         else:
             texto = f"O cavalo vencedor foi {cavalo_vencedor}, mas ninguém apostou nele! 😢"
