@@ -156,8 +156,8 @@ class HorseRaceSlash(commands.Cog):
         total_apostado = sum(valor for valor, _ in corrida.apostas.values())
         total_apostado_vencedor = sum(valor for uid, valor in ganhadores)
         # Lógica de prêmio
-        if len(ganhadores) == 1 or (len(ganhadores) == 1 and len(corrida.apostas) == 1):
-            # Jogador sozinho: 150% do valor apostado
+        if len(corrida.apostas) == 1 and len(ganhadores) == 1:
+            # Jogo solo: 150% do valor apostado
             uid, valor = ganhadores[0]
             premio = int(valor * 1.5)
             adicionar_saldo(uid, premio)
