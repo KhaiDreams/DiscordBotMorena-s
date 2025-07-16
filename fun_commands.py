@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord.ui import View, Button
 import random
 import datetime
+import subprocess
 
 from utils import obter_agora_brasil, fuso_brasil
 
@@ -129,37 +130,144 @@ def setup_fun_commands(bot):
         await loading_msg.delete()
         await ctx.reply(embed=embed, view=view)
 
+    
+    @bot.command()
+    async def sherlock(ctx, *, username: str):
+        """Procura perfis do usuário em redes sociais usando Sherlock"""
+        embed_loading = discord.Embed(
+            title="🔎 Procurando...",
+            description=f"Buscando perfis para `{username}`. Isso pode levar alguns segundos...",
+            color=discord.Color.blurple()
+        )
+        if isinstance(ctx.channel, discord.DMChannel):
+            msg = await ctx.send(embed=embed_loading)
+        else:
+            msg = await ctx.reply(embed=embed_loading, mention_author=False)
+        try:
+            process = await ctx.bot.loop.run_in_executor(
+                None,
+                lambda: subprocess.run(
+                    [
+                        "python",
+                        "-m",
+                        "sherlock_project.sherlock",
+                        username
+                    ],
+                    cwd=r"F:\\Sherlock",
+                    capture_output=True,
+                    text=True,
+                    timeout=120
+                )
+            )
+            output = process.stdout.strip()
+            if not output:
+                output = process.stderr.strip()
+            if not output:
+                output = "Nenhum resultado encontrado ou erro ao executar o Sherlock."
+
+            # Paginação se necessário
+            PAGE_SIZE = 1900
+            pages = [output[i:i+PAGE_SIZE] for i in range(0, len(output), PAGE_SIZE)]
+
+
+            class SherlockPaginator(View):
+                def __init__(self, pages, username, timeout=900):
+                    super().__init__(timeout=timeout)
+                    self.pages = pages
+                    self.username = username
+                    self.current = 0
+                    self.total = len(pages)
+                    # Os botões são definidos pelos decorators abaixo
+
+                async def interaction_check(self, interaction: discord.Interaction) -> bool:
+                    # Só o autor pode usar os botões
+                    return interaction.user.id == ctx.author.id
+
+                @discord.ui.button(label="Anterior", style=discord.ButtonStyle.secondary, row=0)
+                async def prev(self, interaction: discord.Interaction, button: Button):
+                    if self.current > 0:
+                        self.current -= 1
+                        await self.update_page(interaction)
+
+                @discord.ui.button(label="Próxima", style=discord.ButtonStyle.secondary, row=0)
+                async def next(self, interaction: discord.Interaction, button: Button):
+                    if self.current < self.total - 1:
+                        self.current += 1
+                        await self.update_page(interaction)
+
+                async def update_page(self, interaction):
+                    # Atualiza o estado dos botões
+                    self.prev.disabled = self.current == 0
+                    self.next.disabled = self.current == self.total - 1
+                    embed = discord.Embed(
+                        title=f"Resultados para `{self.username}` (Página {self.current+1}/{self.total})",
+                        description=f"```{self.pages[self.current]}```",
+                        color=discord.Color.green()
+                    )
+                    await interaction.response.edit_message(embed=embed, view=self)
+
+            if len(pages) == 1:
+                embed_result = discord.Embed(
+                    title=f"Resultados para `{username}`",
+                    description=f"```{pages[0]}```",
+                    color=discord.Color.green()
+                )
+                await msg.edit(embed=embed_result)
+            else:
+                paginator = SherlockPaginator(pages, username)
+                embed_result = discord.Embed(
+                    title=f"Resultados para `{username}` (Página 1/{len(pages)})",
+                    description=f"```{pages[0]}```",
+                    color=discord.Color.green()
+                )
+                await msg.edit(embed=embed_result, view=paginator)
+        except subprocess.TimeoutExpired:
+            embed_timeout = discord.Embed(
+                title="⏰ Tempo esgotado",
+                description="A busca demorou demais e foi cancelada.",
+                color=discord.Color.red()
+            )
+            await msg.edit(embed=embed_timeout)
+        except Exception as e:
+            embed_error = discord.Embed(
+                title="❌ Erro ao executar o Sherlock",
+                description=f"{e}",
+                color=discord.Color.red()
+            )
+            await msg.edit(embed=embed_error)
+
     @bot.command()
     async def comandos(ctx):
         """Send command list via DM"""
         comandos_texto = (
             "**📋 Lista de Comandos Disponíveis:**\n\n"
-            ".oi - O bot te dá um salve 😎\n"
-            ".rony - Fala da novata Rony 🐢\n"
-            ".khai - Elogia o Khai 😘\n"
-            ".gugu - Avisos sobre quando o Gugu ficará Online 📅\n"
-            ".morena - Sobre a mais mais (brilho✨) 😘\n"
-            ".comandos - Manda essa lista aqui no seu PV 📬\n"
-            ".escolha [@alguém] - Escolhe uma mensagem aleatória da pessoa\n"
-            ".sortear - Cria um sorteio 🎉\n"
-            ".sorteios - Mostra a lista de sorteios criados 📜\n"
-            ".eu [@alguém] - Vai falar algo bem carinhoso para você! 🤞\n"
-            "/record - Cria um desafio (record) que a galera pode tentar bater 🏁\n"
-            ".records - Mostra todos os records criados 🎯\n"
-            ".tentativa [número do record] [quantidade] - Tenta bater um record específico 💥\n"
-            ".ranking [número do record] mostra o raking record específico 🐱‍👤\n"
-            ".deletar_record [número do record] - Deleta um record (só quem criou pode excluir) 🗑️\n"
-            "/sugestao - Envia para nossa caixa de sugestões, uma ideia para ser adicionada no bot 💡\n"
-            "/secreto @alguém mensagem - Envia uma mensagem anônima no PV de alguém 🔒\n"
-            ".double [valor] [v/p/b] - Joga no Double, apostando na cor Vermelho (v), Preto (p) ou Branco (b) 🎲\n"
-            ".saldo - Consulta seu saldo atual 💰\n"
-            ".transferir [valor] [@alguém] - Transfere grana do teu saldo pra outro membro 💸\n"
-            ".premios - Mostra a lista de prêmios ou resgata🎁\n"
-            "/corrida - Inicia uma corrida de cavalos com apostas entre os jogadores! Use o botão/modal para apostar facilmente. 🏇\n"
+            "` .oi ` - O bot te dá um salve 😎\n"
+            "` .rony ` - Fala da novata Rony 🐢\n"
+            "` .khai ` - Elogia o Khai 😘\n"
+            "` .gugu ` - Avisos sobre quando o Gugu ficará Online 📅\n"
+            "` .morena ` - Sobre a mais mais (brilho✨) 😘\n"
+            "` .comandos ` - Manda essa lista aqui no seu PV 📬\n"
+            "` .escolha [@alguém] ` - Escolhe uma mensagem aleatória da pessoa\n"
+            "` .sortear ` - Cria um sorteio 🎉\n"
+            "` .sorteios ` - Mostra a lista de sorteios criados 📜\n"
+            "` .eu [@alguém] ` - Vai falar algo bem carinhoso para você! 🤞\n"
+            "` /record ` - Cria um desafio (record) que a galera pode tentar bater 🏁\n"
+            "` .records ` - Mostra todos os records criados 🎯\n"
+            "` .tentativa [número do record] [quantidade] ` - Tenta bater um record específico 💥\n"
+            "` .ranking [número do record] ` - Mostra o ranking do record específico 🐱‍👤\n"
+            "` .deletar_record [número do record] ` - Deleta um record (só quem criou pode excluir) 🗑️\n"
+            "` /sugestao ` - Envia para nossa caixa de sugestões, uma ideia para ser adicionada no bot 💡\n"
+            "` /secreto @alguém mensagem ` - Envia uma mensagem anônima no PV de alguém 🔒\n"
+            "` .double [valor] [v/p/b] ` - Joga no Double, apostando na cor Vermelho (v), Preto (p) ou Branco (b) 🎲\n"
+            "` .saldo ` - Consulta seu saldo atual 💰\n"
+            "` .transferir [valor] [@alguém] ` - Transfere grana do teu saldo pra outro membro 💸\n"
+            "` .premios ` - Mostra a lista de prêmios ou resgata 🎁\n"
+            "` /corrida ` - Inicia uma corrida de cavalos com apostas entre os jogadores! Use o botão/modal para apostar facilmente. 🏇\n"
+            "` .sherlock <nome> ` - Pesquisa perfis do nome em redes sociais usando Sherlock, tudo pra você stalkear bem feito! 🕵️‍♂️\n"
         )
         corrida_explicacao = (
             "\n**Como funciona a Corrida de Cavalos:**\n"
-            "- Use `/corrida` para iniciar uma corrida no canal.\n"
+            "- Use ` /corrida ` para iniciar uma corrida no canal.\n"
             "- Todos têm 30 segundos para apostar em um dos 3 cavalos, usando o modal que aparece ao clicar no comando.\n"
             "- Você escolhe o valor da aposta e o número do cavalo.\n"
             "- O saldo é debitado na hora da aposta.\n"
