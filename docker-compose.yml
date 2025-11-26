@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  morena-bot:
+    build: .
+    container_name: morena-discord-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Persiste os dados do bot
+      - ./data:/app/data
+    environment:
+      - TZ=America/Sao_Paulo
+    # Logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
