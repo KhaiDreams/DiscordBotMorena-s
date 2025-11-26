@@ -2,7 +2,7 @@ import datetime
 import pytz
 import os
 import json
-from config import ARQUIVO_SORTEIOS, ARQUIVO_RECORDS, ARQUIVO_ECONOMIA
+from config import ARQUIVO_SORTEIOS, ARQUIVO_RECORDS, ARQUIVO_ECONOMIA, ARQUIVO_ESTUDOS
 
 # Data e hora no fuso horário do Brasil
 fuso_brasil = pytz.timezone("America/Sao_Paulo")
@@ -72,3 +72,15 @@ def debitar_saldo(user_id, valor):
 
 def adicionar_saldo(user_id, valor):
     alterar_saldo(user_id, abs(valor))
+
+# Estudos
+def carregar_estudos():
+    if not os.path.exists(ARQUIVO_ESTUDOS):
+        with open(ARQUIVO_ESTUDOS, "w", encoding="utf-8") as f:
+            json.dump({}, f, indent=2, ensure_ascii=False)
+    with open(ARQUIVO_ESTUDOS, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def salvar_estudos(estudos):
+    with open(ARQUIVO_ESTUDOS, "w", encoding="utf-8") as f:
+        json.dump(estudos, f, indent=2, ensure_ascii=False)

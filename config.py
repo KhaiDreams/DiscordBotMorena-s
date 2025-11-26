@@ -14,6 +14,7 @@ ARQUIVO_RECORDS = "data/records.json"
 ARQUIVO_CONVERSAS = "data/conversas.json"
 ARQUIVO_ECONOMIA = "data/economia.json"
 ARQUIVO_PREMIOS = "data/premios.json"
+ARQUIVO_ESTUDOS = "data/estudos.json"
 
 # Configurações de IA
 COOLDOWN_SEGUNDOS = 60
