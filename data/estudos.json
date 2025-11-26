@@ -1,0 +1,30 @@
+{
+  "329265386153443329": {
+    "total_segundos": 2567,
+    "sessoes": [
+      {
+        "data": "25/11/2025",
+        "hora_inicio": "21:29",
+        "hora_fim": "22:17",
+        "segundos": 2567
+      }
+    ]
+  },
+  "995729297396473886": {
+    "total_segundos": 5038,
+    "sessoes": [
+      {
+        "data": "25/11/2025",
+        "hora_inicio": "21:29",
+        "hora_fim": "22:29",
+        "segundos": 1608
+      },
+      {
+        "data": "25/11/2025",
+        "hora_inicio": "23:03",
+        "hora_fim": "00:00",
+        "segundos": 3430
+      }
+    ]
+  }
+}
