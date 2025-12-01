@@ -353,7 +353,7 @@ def setup_study_commands(bot: commands.Bot):
         
         # Cria a embed
         embed = discord.Embed(
-            title="🏆 Ranking de Estudos do Servidor",
+            title="🏆 Ranking de Estudos Global",
             description="Os membros que mais dedicaram tempo aos estudos!",
             color=discord.Color.gold()
         )
