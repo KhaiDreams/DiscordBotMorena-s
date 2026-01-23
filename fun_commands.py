@@ -239,7 +239,7 @@ def setup_fun_commands(bot):
     @bot.command()
     async def comandos(ctx):
         """Send command list via DM"""
-        comandos_texto = (
+        comandos_parte1 = (
             "**📋 Lista de Comandos Disponíveis:**\n\n"
             "**🎮 Comandos Gerais**\n"
             "` .oi ` - O bot te dá um salve 😎\n"
@@ -250,62 +250,61 @@ def setup_fun_commands(bot):
             "` .comandos ` - Manda essa lista aqui no seu PV 📬\n"
             "` .escolha [@alguém] ` - Escolhe uma mensagem aleatória da pessoa\n"
             "` .eu [@alguém] ` - Vai falar algo bem carinhoso para você! 🤞\n"
-            "` .sherlock <nome> ` - Pesquisa perfis do nome em redes sociais usando Sherlock, tudo pra você stalkear bem feito! 🕵️‍♂️\n\n"
+            "` .sherlock <nome> ` - Pesquisa perfis do nome em redes sociais usando Sherlock 🕵️‍♂️\n\n"
             
             "**🎁 Sorteios e Desafios**\n"
             "` .sortear ` - Cria um sorteio 🎉\n"
             "` .sorteios ` - Mostra a lista de sorteios criados 📜\n"
             "` /record ` - Cria um desafio (record) que a galera pode tentar bater 🏁\n"
             "` .records ` - Mostra todos os records criados 🎯\n"
-            "` .tentativa [número do record] [quantidade] ` - Tenta bater um record específico 💥\n"
-            "` .ranking [número do record] ` - Mostra o ranking do record específico 🐱‍👤\n"
-            "` .deletar_record [número do record] ` - Deleta um record (só quem criou pode excluir) 🗑️\n\n"
-            
+            "` .tentativa [nº] [valor] ` - Tenta bater um record específico 💥\n"
+            "` .ranking [nº] ` - Mostra o ranking do record 🐱‍👤\n"
+            "` .deletar_record [nº] ` - Deleta um record (só quem criou) 🗑️\n"
+        )
+        
+        comandos_parte2 = (
             "**💰 Economia e Apostas**\n"
-            "` .double [valor] [v/p/b] ` - Joga no Double, apostando na cor Vermelho (v), Preto (p) ou Branco (b) 🎲\n"
+            "` .double [valor] [v/p/b] ` - Joga no Double (Vermelho/Preto/Branco) 🎲\n"
             "` .saldo ` - Consulta seu saldo atual 💰\n"
-            "` .transferir [valor] [@alguém] ` - Transfere grana do teu saldo pra outro membro 💸\n"
+            "` .transferir [valor] [@alguém] ` - Transfere grana 💸\n"
             "` .premios ` - Mostra a lista de prêmios ou resgata 🎁\n"
-            "` /corrida ` - Inicia uma corrida de cavalos com apostas entre os jogadores! Use o botão/modal para apostar facilmente. 🏇\n\n"
+            "` /corrida ` - Corrida de cavalos com apostas! 🏇\n\n"
             
             "**📚 Sistema de Estudos**\n"
-            "` .ponto ` - Inicia o acompanhamento de horas de estudo (precisa estar em call) ⏱\n"
-            "` .tempo [@alguém] ` - Mostra quanto tempo você ou outra pessoa estudou 📊\n"
-            "` .rank_estudos ` - Mostra o ranking de quem mais estudou no servidor 🏆\n\n"
-            
+            "` .ponto ` - Inicia acompanhamento de estudo (precisa estar em call) ⏱\n"
+            "` .tempo [@alguém] ` - Mostra tempo estudado 📊\n"
+            "` .rank_estudos ` - Ranking de estudos do servidor 🏆\n\n"
+
+            "**🔈 TTS (Text-to-Speech)**\n"
+            "` .call ` - Bot entra na call e lê mensagens em voz alta 🔊\n"
+            "` .leave ` - Bot sai do canal de voz 👋\n\n"
+
             "**💬 Outros**\n"
-            "` /sugestao ` - Envia para nossa caixa de sugestões, uma ideia para ser adicionada no bot 💡\n"
-            "` /secreto @alguém mensagem ` - Envia uma mensagem anônima no PV de alguém 🔒\n"
+            "` /sugestao ` - Envia uma sugestão para o bot 💡\n"
+            "` /secreto @alguém msg ` - Mensagem anônima no PV 🔒\n"
         )
-        corrida_explicacao = (
-            "\n**📚 Como funciona o Sistema de Estudos:**\n"
-            "- Use ` .ponto ` enquanto estiver em uma call de voz para iniciar uma sessão de estudo.\n"
-            "- O bot vai começar a contar o tempo automaticamente.\n"
-            "- Use o botão ⏸ Pausar para pausar a contagem (por exemplo, durante um intervalo).\n"
-            "- Use o botão ▶ Retomar para voltar a contar o tempo.\n"
-            "- Use o botão 🛑 Finalizar para encerrar a sessão e salvar o registro.\n"
-            "- Se você sair da call, a sessão é finalizada automaticamente.\n"
-            "- Use ` .tempo ` para ver seu histórico completo de estudos.\n"
-            "- Use ` .rank_estudos ` para ver quem mais estuda no servidor.\n"
-            "- Apenas uma sessão ativa por vez por pessoa, mas várias pessoas podem estudar juntas!\n\n"
+        
+        explicacoes = (
+            "**📚 Sistema de Estudos:**\n"
+            "- Use ` .ponto ` em call de voz para iniciar\n"
+            "- Botões: ⏸ Pausar | ▶ Retomar | 🛑 Finalizar\n"
+            "- Sair da call finaliza automaticamente\n"
+            "- ` .tempo ` mostra seu histórico completo\n"
+            "- Uma sessão ativa por pessoa\n\n"
             
-            "**🏇 Como funciona a Corrida de Cavalos:**\n"
-            "- Use ` /corrida ` para iniciar uma corrida no canal.\n"
-            "- Todos têm 30 segundos para apostar em um dos 3 cavalos, usando o modal que aparece ao clicar no comando.\n"
-            "- Você escolhe o valor da aposta e o número do cavalo.\n"
-            "- O saldo é debitado na hora da aposta.\n"
-            "- Todos podem apostar juntos, cada um em qualquer cavalo.\n"
-            "- O progresso dos cavalos é animado no chat, e todos acompanham juntos.\n"
-            "- Se as apostas dos ganhadores forem equivalentes (diferença até 20%), o prêmio é o valor total apostado, dividido igualmente.\n"
-            "- Se só uma pessoa apostar, ou se houver grande diferença entre os valores apostados, o prêmio é 150% do valor apostado pelo ganhador.\n"
-            "- Caso contrário, o prêmio é proporcional ao valor apostado (90% do total apostado).\n"
-            "- Se ninguém apostar, a corrida é cancelada.\n"
-            "- O comando é fácil, rápido e divertido!\n"
+            "**🏇 Corrida de Cavalos:**\n"
+            "- ` /corrida ` inicia, todos têm 30s para apostar\n"
+            "- Escolha valor e cavalo (1, 2 ou 3)\n"
+            "- Saldo debitado na hora\n"
+            "- Prêmios baseados nas apostas totais\n"
+            "- Animação ao vivo da corrida! 🎉\n"
         )
+        
         try:
-            await ctx.author.send(comandos_texto)
-            await ctx.author.send(corrida_explicacao)
+            await ctx.author.send(comandos_parte1)
+            await ctx.author.send(comandos_parte2)
+            await ctx.author.send(explicacoes)
             if ctx.guild:
                 await ctx.reply("Te mandei no PV, confere lá! 📬")
         except discord.Forbidden:
-            await ctx.reply("Não consegui te mandar DM. Tu precisa liberar as mensagens privadas do servidor. ❌")
+            await ctx.reply("Não consegui te mandar DM. Libera as mensagens privadas do servidor. ❌")
