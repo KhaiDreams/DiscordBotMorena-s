@@ -82,6 +82,13 @@ Ele acompanha o chat do seu servidor e responde de tempos em tempos com o contex
 | `.tempo [@alguém]` | Mostra quanto tempo você ou outra pessoa estudou |
 | `.rank_estudos` | Mostra o ranking de quem mais estudou no servidor |
 
+### TTS (Text-to-Speech)
+
+| Comando | Descrição |
+|---------|-----------|
+| `.call` | Bot entra na call e lê todas as mensagens do chat em voz alta |
+| `.leave` | Bot sai do canal de voz |
+
 ### Outros
 
 | Comando | Descrição |

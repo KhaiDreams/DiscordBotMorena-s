@@ -23,6 +23,7 @@ from discord import app_commands
 from economy_commands import setup_economy_commands
 from horse_race_slash import setup_horse_race_slash
 from study_commands import setup_study_commands
+from tts_commands import setup_tts_commands, process_tts_message
 import asyncio
 
 # Bot configuration
@@ -68,10 +69,13 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    # Processa comandos normalmente
+    # Processa comandos PRIMEIRO
     if message.content.startswith('.') or message.content.startswith('/'):
         await bot.process_commands(message)
         return
+
+    # Processa TTS se aplicável (só para mensagens normais, não comandos)
+    await process_tts_message(message)
 
     # Salva mensagem no histórico
     adicionar_mensagem_conversa(
@@ -128,6 +132,7 @@ async def start_bot():
     register_tasks(bot)
     setup_horse_race_slash(bot)
     setup_study_commands(bot)
+    setup_tts_commands(bot)
     await setup_economy_commands(bot)
     await bot.start(TOKEN)
 

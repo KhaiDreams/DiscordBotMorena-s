@@ -17,7 +17,7 @@
     ]
   },
   "995729297396473886": {
-    "total_segundos": 29149,
+    "total_segundos": 45060,
     "sessoes": [
       {
         "data": "25/11/2025",
@@ -72,6 +72,24 @@
         "hora_inicio": "12:55",
         "hora_fim": "13:54",
         "segundos": 3529
+      },
+      {
+        "data": "16/01/2026",
+        "hora_inicio": "15:51",
+        "hora_fim": "18:06",
+        "segundos": 8113
+      },
+      {
+        "data": "19/01/2026",
+        "hora_inicio": "11:51",
+        "hora_fim": "12:28",
+        "segundos": 2260
+      },
+      {
+        "data": "19/01/2026",
+        "hora_inicio": "15:50",
+        "hora_fim": "17:37",
+        "segundos": 5538
       }
     ]
   }

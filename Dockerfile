@@ -1,12 +1,18 @@
-# Use Python 3.12 slim como base
-FROM python:3.12-slim
+# Use Python 3.10 slim como base (compatível com as dependências)
+FROM python:3.10-slim
 
 # Define o diretório de trabalho
 WORKDIR /app
 
-# Instala dependências do sistema necessárias
+# Instala dependências do sistema necessárias para voz no Discord
 RUN apt-get update && apt-get install -y \
     git \
+    ffmpeg \
+    libopus0 \
+    libopus-dev \
+    libffi-dev \
+    libnacl-dev \
+    python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copia o arquivo de dependências
