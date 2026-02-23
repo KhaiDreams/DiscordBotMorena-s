@@ -163,7 +163,7 @@ async def speak_message(voice_client, author_name, content):
         return
     
     # Cria o texto a ser falado
-    texto_fala = f"{author_name} disse: {content}"
+    texto_fala = content
     
     temp_filename = None
     try:
