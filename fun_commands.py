@@ -3,7 +3,6 @@ from discord.ext import commands
 from discord.ui import View, Button
 import random
 import datetime
-import subprocess
 
 from utils import obter_agora_brasil, fuso_brasil
 
@@ -130,112 +129,6 @@ def setup_fun_commands(bot):
         await loading_msg.delete()
         await ctx.reply(embed=embed, view=view)
 
-    
-    @bot.command()
-    async def sherlock(ctx, *, username: str):
-        """Procura perfis do usuário em redes sociais usando Sherlock"""
-        embed_loading = discord.Embed(
-            title="🔎 Procurando...",
-            description=f"Buscando perfis para `{username}`. Isso pode levar alguns segundos...",
-            color=discord.Color.blurple()
-        )
-        if isinstance(ctx.channel, discord.DMChannel):
-            msg = await ctx.send(embed=embed_loading)
-        else:
-            msg = await ctx.reply(embed=embed_loading, mention_author=False)
-        try:
-            process = await ctx.bot.loop.run_in_executor(
-                None,
-                lambda: subprocess.run(
-                    [
-                        "python",
-                        "-m",
-                        "sherlock_project.sherlock",
-                        username
-                    ],
-                    cwd=r"F:\\Sherlock",
-                    capture_output=True,
-                    text=True,
-                    timeout=120
-                )
-            )
-            output = process.stdout.strip()
-            if not output:
-                output = process.stderr.strip()
-            if not output:
-                output = "Nenhum resultado encontrado ou erro ao executar o Sherlock."
-
-            # Paginação se necessário
-            PAGE_SIZE = 1900
-            pages = [output[i:i+PAGE_SIZE] for i in range(0, len(output), PAGE_SIZE)]
-
-
-            class SherlockPaginator(View):
-                def __init__(self, pages, username, timeout=900):
-                    super().__init__(timeout=timeout)
-                    self.pages = pages
-                    self.username = username
-                    self.current = 0
-                    self.total = len(pages)
-                    # Os botões são definidos pelos decorators abaixo
-
-                async def interaction_check(self, interaction: discord.Interaction) -> bool:
-                    # Só o autor pode usar os botões
-                    return interaction.user.id == ctx.author.id
-
-                @discord.ui.button(label="Anterior", style=discord.ButtonStyle.secondary, row=0)
-                async def prev(self, interaction: discord.Interaction, button: Button):
-                    if self.current > 0:
-                        self.current -= 1
-                        await self.update_page(interaction)
-
-                @discord.ui.button(label="Próxima", style=discord.ButtonStyle.secondary, row=0)
-                async def next(self, interaction: discord.Interaction, button: Button):
-                    if self.current < self.total - 1:
-                        self.current += 1
-                        await self.update_page(interaction)
-
-                async def update_page(self, interaction):
-                    # Atualiza o estado dos botões
-                    self.prev.disabled = self.current == 0
-                    self.next.disabled = self.current == self.total - 1
-                    embed = discord.Embed(
-                        title=f"Resultados para `{self.username}` (Página {self.current+1}/{self.total})",
-                        description=f"```{self.pages[self.current]}```",
-                        color=discord.Color.green()
-                    )
-                    await interaction.response.edit_message(embed=embed, view=self)
-
-            if len(pages) == 1:
-                embed_result = discord.Embed(
-                    title=f"Resultados para `{username}`",
-                    description=f"```{pages[0]}```",
-                    color=discord.Color.green()
-                )
-                await msg.edit(embed=embed_result)
-            else:
-                paginator = SherlockPaginator(pages, username)
-                embed_result = discord.Embed(
-                    title=f"Resultados para `{username}` (Página 1/{len(pages)})",
-                    description=f"```{pages[0]}```",
-                    color=discord.Color.green()
-                )
-                await msg.edit(embed=embed_result, view=paginator)
-        except subprocess.TimeoutExpired:
-            embed_timeout = discord.Embed(
-                title="⏰ Tempo esgotado",
-                description="A busca demorou demais e foi cancelada.",
-                color=discord.Color.red()
-            )
-            await msg.edit(embed=embed_timeout)
-        except Exception as e:
-            embed_error = discord.Embed(
-                title="❌ Erro ao executar o Sherlock",
-                description=f"{e}",
-                color=discord.Color.red()
-            )
-            await msg.edit(embed=embed_error)
-
     @bot.command()
     async def comandos(ctx):
         """Send command list via DM"""
@@ -249,8 +142,7 @@ def setup_fun_commands(bot):
             "` .morena ` - Sobre a mais mais (brilho✨) 😘\n"
             "` .comandos ` - Manda essa lista aqui no seu PV 📬\n"
             "` .escolha [@alguém] ` - Escolhe uma mensagem aleatória da pessoa\n"
-            "` .eu [@alguém] ` - Vai falar algo bem carinhoso para você! 🤞\n"
-            "` .sherlock <nome> ` - Pesquisa perfis do nome em redes sociais usando Sherlock 🕵️‍♂️\n\n"
+            "` .eu [@alguém] ` - Vai falar algo bem carinhoso para você! 🤞\n\n"
             
             "**🎁 Sorteios e Desafios**\n"
             "` .sortear ` - Cria um sorteio 🎉\n"

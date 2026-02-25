@@ -30,7 +30,6 @@ Ele acompanha o chat do seu servidor e responde de tempos em tempos com o contex
 - **Sistema de Prêmios:** resgate prêmios usando o saldo virtual acumulado.
 - **Sugestões:** receba ideias para melhorar o bot diretamente da comunidade.
 - **IA integrada:** respostas inteligentes e contextuais usando OpenAI, o bot aprende com o histórico de conversas.
-- **Sherlock Integration:** pesquise perfis em redes sociais usando a ferramenta Sherlock.
 - **Mensagens anônimas:** envie mensagens secretas para outros membros do servidor.
 - **Sistema de tasks automatizadas:** o bot muda status automaticamente, verifica sorteios agendados e gerencia economia.
 
@@ -50,7 +49,6 @@ Ele acompanha o chat do seu servidor e responde de tempos em tempos com o contex
 | `.comandos` | Manda a lista completa de comandos no seu PV |
 | `.escolha [@alguém]` | Escolhe uma mensagem aleatória da pessoa |
 | `.eu [@alguém]` | Vai falar algo bem carinhoso para você |
-| `.sherlock <nome>` | Pesquisa perfis em redes sociais usando Sherlock |
 
 ### Sorteios e Desafios
 
@@ -202,7 +200,6 @@ O bot possui diversas funcionalidades que funcionam automaticamente em segundo p
 - **pytz** - Gerenciamento de fusos horários (horário de Brasília)
 - **asyncio** - Programação assíncrona para melhor performance
 - **JSON** - Armazenamento persistente de dados
-- **Sherlock** - Ferramenta de OSINT para pesquisa de perfis em redes sociais
 
 ---
 

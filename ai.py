@@ -67,7 +67,6 @@ def inicializar_memoria_permanente():
                     ".rony, .khai, .morena, .gugu - Informações sobre pessoas",
                     ".eu [@alguém] - Frase carinhosa sobre alguém",
                     ".escolha [@alguém] - Escolhe mensagem aleatória da pessoa",
-                    ".sherlock <nome> - Pesquisa perfis em redes sociais",
                     ".comandos - Lista completa de comandos via DM"
                 ],
                 "economia": [
