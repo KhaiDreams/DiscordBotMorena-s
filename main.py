@@ -6,12 +6,14 @@ from utils import (
 )
 from config import (
     TOKEN,
+    contador_analise_memoria,
 )
 from ai import (
     adicionar_mensagem_conversa,
     obter_contexto_conversa,
     gerar_resposta_ai,
     deve_responder_mensagem,
+    analisar_e_salvar_memorias,
 )
 from raffle_commands import register_raffle_commands
 from fun_commands import setup_fun_commands
@@ -88,7 +90,19 @@ async def on_message(message):
     # Verifica se deve responder (incluindo DM)
     if deve_responder_mensagem(message) or isinstance(message.channel, discord.DMChannel):
         contexto = obter_contexto_conversa(message.channel.id)
-        resposta = await gerar_resposta_ai(contexto, pergunta=message.content)
+        
+        # Obter informações para memórias
+        guild_id = message.guild.id if message.guild else None
+        guild_name = message.guild.name if message.guild else None
+        user_id = message.author.id
+        
+        resposta = await gerar_resposta_ai(
+            contexto, 
+            pergunta=message.content, 
+            guild_name=guild_name,
+            guild_id=guild_id,
+            user_id=user_id
+        )
 
         adicionar_mensagem_conversa(
             canal_id=message.channel.id,
@@ -98,6 +112,15 @@ async def on_message(message):
         )
 
         await message.channel.send(resposta)
+        
+        # Analisar e salvar memórias automaticamente a cada 10 respostas (economia)
+        contador_analise_memoria["count"] += 1
+        if contador_analise_memoria["count"] >= 10:
+            contador_analise_memoria["count"] = 0
+            try:
+                await analisar_e_salvar_memorias(contexto, resposta, guild_id, user_id)
+            except Exception as e:
+                print(f"Erro ao salvar memórias: {e}")
 
     await bot.process_commands(message)
 
