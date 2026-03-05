@@ -15,12 +15,10 @@ from config import ARQUIVO_ECONOMIA
 def register_tasks(bot):
     atividades = [
         discord.Game(name="Jogando Roblox"),
+        discord.Game(name="Jogando Pokemon TGC"),
         discord.Streaming(name="Live Estudando 📚", url="https://www.twitch.tv/morena"),
         discord.Activity(type=discord.ActivityType.listening, name="Anjo 🎧"),
-        discord.Activity(type=discord.ActivityType.watching, name="Como hostear bot grátis tutorial 100% atualizado 2017 💻"),
         discord.Activity(type=discord.ActivityType.watching, name="Vlogs da Morena ❤✨"),
-        discord.Activity(type=discord.ActivityType.listening, name="BlackPink 🎧"),
-        discord.Activity(type=discord.ActivityType.watching, name="Saia justa 🤔"),
     ]
 
     @tasks.loop(minutes=10)
