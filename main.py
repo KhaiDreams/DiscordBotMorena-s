@@ -125,6 +125,17 @@ async def on_message(message):
     await bot.process_commands(message)
 
 @bot.event
+async def on_voice_state_update(member, before, after):
+    """Detecta desconexões do bot do canal de voz"""
+    if member.id == bot.user.id:
+        if before.channel is not None and after.channel is None:
+            print(f"[VOZ] Bot foi desconectado do canal '{before.channel.name}' (guild: {member.guild.name})")
+        elif before.channel is None and after.channel is not None:
+            print(f"[VOZ] Bot entrou no canal '{after.channel.name}' (guild: {member.guild.name})")
+        elif before.channel != after.channel:
+            print(f"[VOZ] Bot movido de '{before.channel.name}' para '{after.channel.name}'")
+
+@bot.event
 async def on_ready():
     """Bot startup event"""
     agora_brasil = obter_agora_brasil()
@@ -137,11 +148,13 @@ async def on_ready():
         bot.checar_sorteios_task.start()
         bot.resetar_valor_minimo_task.start()
         bot.tasks_started = True
-    try:
-        synced = await bot.tree.sync()
-        print(f"Sincronizei {len(synced)} comandos de barra com sucesso.")
-    except Exception as e:
-        print(f"Erro ao sincronizar comandos de barra: {e}")
+        try:
+            synced = await bot.tree.sync()
+            print(f"Sincronizei {len(synced)} comandos de barra com sucesso.")
+        except Exception as e:
+            print(f"Erro ao sincronizar comandos de barra: {e}")
+    else:
+        print("[on_ready] Re-connect detectado — gateway reconectou (on_ready disparou novamente).")
 
 # ========================================
 # BOT STARTUP
