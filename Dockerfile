@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     libnacl-dev \
     python3-dev \
+    libssl-dev \
+    cargo \
     && rm -rf /var/lib/apt/lists/*
 
 # Copia o arquivo de dependências

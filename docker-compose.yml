@@ -5,6 +5,7 @@ services:
     build: .
     container_name: morena-discord-bot
     restart: unless-stopped
+    network_mode: host  # Necessário para Discord Voice (UDP) funcionar corretamente
     env_file:
       - .env
     volumes:
